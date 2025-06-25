@@ -1,0 +1,8 @@
+package com.rimaro.musify.model
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class ExternalUrls(
+    val spotify: String
+)
