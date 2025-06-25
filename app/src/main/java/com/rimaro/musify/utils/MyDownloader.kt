@@ -1,20 +1,21 @@
-package com.rimaro.musify
+package com.rimaro.musify.utils
 
 import android.util.Log
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.schabi.newpipe.extractor.downloader.Downloader
+import org.schabi.newpipe.extractor.downloader.Request
 import org.schabi.newpipe.extractor.downloader.Response
+import kotlin.collections.iterator
 
 class MyDownloader : Downloader() {
     private val client = OkHttpClient()
 
-    override fun execute(request: org.schabi.newpipe.extractor.downloader.Request): Response {
+    override fun execute(request: Request): Response {
         val body1 = request.dataToSend()?.toRequestBody()
 
-        val req = Request.Builder()
+        val req = okhttp3.Request.Builder()
             .url(request.url())
             .method(request.httpMethod(), body1)
             .apply {

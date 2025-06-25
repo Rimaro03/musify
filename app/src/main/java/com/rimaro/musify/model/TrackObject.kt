@@ -1,7 +1,11 @@
 package com.rimaro.musify.model
 
+import android.annotation.SuppressLint
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import org.schabi.newpipe.extractor.stream.AudioStream
 
+@SuppressLint("UnsafeOptInUsageError")
 @Serializable
 data class TrackObject(
     val album: Album,
@@ -23,5 +27,10 @@ data class TrackObject(
     val track_number: Int,
     val type: String,
     val uri: String,
-    val is_local: Boolean
+    val is_local: Boolean,
+
+    //newpipe url
+    var newPipeUrl: String? = null,
+    @Contextual
+    var audioStream: AudioStream? = null
 )

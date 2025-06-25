@@ -79,7 +79,7 @@ class HomeFragment: Fragment() {
         val trackRecyclerView = binding.trackRv
         trackRecyclerView.layoutManager = LinearLayoutManager(view.context)
         fun onTrackClicked(track: TrackObject) {
-            viewModel.playTrack(track.name)
+            viewModel.playTrack(track)
         }
         val trackAdapter = TrackAdapter(::onTrackClicked)
         trackRecyclerView.adapter = trackAdapter

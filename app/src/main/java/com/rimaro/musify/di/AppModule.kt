@@ -18,6 +18,7 @@ import retrofit2.Retrofit
 import javax.inject.Singleton
 import com.rimaro.musify.di.Qualifiers.AuthRetrofit
 import com.rimaro.musify.di.Qualifiers.ApiRetrofit
+import com.rimaro.musify.utils.NewPipeHelper
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -67,4 +68,9 @@ object AppModule {
     ): SpotifyTokenManager {
         return SpotifyTokenManager(spotifyRepository, prefs)
     }
+
+    // NewPipeHelper
+    @Provides
+    @Singleton
+    fun provideNewPipeHelper() : NewPipeHelper = NewPipeHelper()
 }
