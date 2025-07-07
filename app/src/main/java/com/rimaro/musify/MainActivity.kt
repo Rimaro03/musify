@@ -9,6 +9,8 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import androidx.core.content.edit
+import androidx.navigation.NavOptions
 import com.rimaro.musify.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -27,7 +29,11 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
 
         val navController = findNavController(R.id.nav_host_fragment_content_main)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
+        appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.homeFragment
+            )
+        )
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         binding.fab.setOnClickListener { view ->
@@ -48,7 +54,18 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_logout -> {
+                val prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE)
+                prefs.edit { remove("auth_code") }
+                //TODO: move the appbar to home fragment only
+                val options = NavOptions.Builder()
+                    .setPopUpTo(R.id.authFragment, true)
+                    .setLaunchSingleTop(true)
+                    .build()
+                findNavController(R.id.nav_host_fragment_content_main)
+                    .navigate(R.id.authFragment, null, options)
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

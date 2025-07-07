@@ -1,6 +1,5 @@
 package com.rimaro.musify.ui.fragments.auth
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,16 +13,19 @@ import com.rimaro.musify.databinding.FragmentAuthBinding
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
 import com.spotify.sdk.android.auth.AuthorizationResponse
-import androidx.core.content.edit
+import androidx.fragment.app.viewModels
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class AuthFragment : Fragment() {
     private var _binding: FragmentAuthBinding? = null
     private val binding get() = _binding!!
     private lateinit var savedStateHandle: SavedStateHandle
 
+    val viewModel: AuthViewModel by viewModels()
+
     companion object {
         private const val CLIENT_ID = "7019f693da3b4af69de4573339b3445d"
-        private const val REQUEST_CODE: Int = 1337
         private const val REDIRECT_URI: String = "musify://auth"
 
         const val LOGIN_SUCCESSFUL: String = "LOGIN_SUCCESFULL"
@@ -50,7 +52,7 @@ class AuthFragment : Fragment() {
                 AuthorizationResponse.Type.CODE,
                 REDIRECT_URI
             )
-            builder.setScopes(arrayOf("user-read-private", "user-library-read",
+            builder.setScopes(arrayOf("user-read-private", "user-library-read", "user-read-email",
                 "playlist-read-private", "playlist-read-collaborative", "playlist-modify-public", "playlist-modify-private",
                 "user-follow-read", "user-top-read", "user-read-recently-played"))
             val request = builder.build()
@@ -73,12 +75,9 @@ class AuthFragment : Fragment() {
         when (response.type) {
             AuthorizationResponse.Type.CODE -> {
                 // Handle successful login
-                val code = response.code
-                Log.d("SpotifyAuth", "Authorization code: $code")
-
                 savedStateHandle[LOGIN_SUCCESSFUL] = true
-                val prefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
-                prefs.edit { putString("auth_code", code) }
+                // TODO: observe login result from viewmodel
+                viewModel.handleSuccessfulLogin(response.code)
 
                 findNavController().popBackStack()
             }

@@ -12,9 +12,31 @@
         tools:layout="@layout/fragment_auth">
         <deepLink
             app:uri="musify://auth" />
+        <action
+            android:id="@+id/action_authFragment_to_homeFragment2"
+            app:destination="@id/homeFragment" />
     </fragment>
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.rimaro.musify.ui.fragments.home.HomeFragment"
-        android:label="HomeFragment" />
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_playlistFragment"
+            app:destination="@id/playlistFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_authFragment"
+            app:destination="@id/authFragment"
+            app:popUpTo="@id/authFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/playlistFragment"
+        android:name="com.rimaro.musify.ui.fragments.playlist.PlaylistFragment"
+        android:label="fragment_playlist"
+        tools:layout="@layout/fragment_playlist" >
+        <argument
+            android:name="playlistId"
+            app:argType="string" />
+    </fragment>
+
 </navigation>

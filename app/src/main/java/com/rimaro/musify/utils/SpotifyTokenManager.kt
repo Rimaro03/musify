@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import android.util.Log
 import androidx.core.content.edit
 import com.rimaro.musify.BuildConfig
-import com.rimaro.musify.repository.SpotifyRepository
+import com.rimaro.musify.domain.repository.SpotifyRepository
 import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton

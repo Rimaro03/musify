@@ -1,7 +1,9 @@
-package com.rimaro.musify.model
+package com.rimaro.musify.domain.model
 
+import android.annotation.SuppressLint
 import kotlinx.serialization.Serializable
 
+@SuppressLint("UnsafeOptInUsageError")
 @Serializable
 data class Album(
     val album_type: String,
@@ -11,7 +13,7 @@ data class Album(
     val href: String,
     val id: String,
     val images: List<ImageObject>,
-    val is_playable: Boolean,
+    val is_playable: Boolean? = null,
     val name: String,
     val release_date: String,
     val release_date_precision: String,

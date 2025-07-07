@@ -2,10 +2,11 @@ package com.rimaro.musify.di
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.room.Room
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.rimaro.musify.network.SpotifyApiService
-import com.rimaro.musify.network.SpotifyAuthService
-import com.rimaro.musify.repository.SpotifyRepository
+import com.rimaro.musify.data.remote.retrofit.SpotifyApiService
+import com.rimaro.musify.data.remote.retrofit.SpotifyAuthService
+import com.rimaro.musify.domain.repository.SpotifyRepository
 import com.rimaro.musify.utils.SpotifyTokenManager
 import dagger.Module
 import dagger.Provides
@@ -18,18 +19,22 @@ import retrofit2.Retrofit
 import javax.inject.Singleton
 import com.rimaro.musify.di.Qualifiers.AuthRetrofit
 import com.rimaro.musify.di.Qualifiers.ApiRetrofit
+import com.rimaro.musify.data.local.db.AppDatabase
 import com.rimaro.musify.utils.NewPipeHelper
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+    val json = Json {
+        ignoreUnknownKeys = true
+    }
     // retrofit and api services
     @AuthRetrofit
     @Provides
     @Singleton
     fun provideAuthRetrofit(): Retrofit =
         Retrofit.Builder()
-            .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .baseUrl("https://accounts.spotify.com/api/")
             .build()
 
@@ -38,7 +43,7 @@ object AppModule {
     @Singleton
     fun provideApiRetrofit(): Retrofit =
         Retrofit.Builder()
-            .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .baseUrl("https://api.spotify.com/v1/")
             .build()
 
@@ -73,4 +78,22 @@ object AppModule {
     @Provides
     @Singleton
     fun provideNewPipeHelper() : NewPipeHelper = NewPipeHelper()
+
+    // Room database
+
+    @Provides
+    @Singleton
+    fun provideDatabase(
+        @ApplicationContext context: Context,
+    ) : AppDatabase {
+        return Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            "app_database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideAudioStreamUrlDao(db: AppDatabase) = db.audioStreamUrlDao()
 }

@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.rimaro.musify.model.TrackObject
+import com.rimaro.musify.domain.model.TrackObject
 import com.rimaro.musify.R
 
 class TrackAdapter(

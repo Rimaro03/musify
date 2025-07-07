@@ -19,14 +19,19 @@ class NewPipeHelper {
         searchExtractor.fetchPage()
 
         val videoURL = searchExtractor.initialPage.items.firstOrNull()?.url
-        Log.d("MainActivity", "${searchExtractor.initialPage.items}")
+        Log.d("NewPipeHelper", "${searchExtractor.initialPage.items}")
 
         return videoURL
     }
 
     fun getAudioStream(url: String) : AudioStream? {
-        val streamInfo = StreamInfo.getInfo(NewPipe.getServiceByUrl(url), url)
-        val audioStream: AudioStream? = streamInfo.audioStreams.firstOrNull()
+        val streamInfo = try {
+            //get service from url
+            StreamInfo.getInfo(NewPipe.getServiceByUrl(url), url)
+        } catch (e: Exception) {
+            null
+        }
+        val audioStream: AudioStream? = streamInfo?.audioStreams?.firstOrNull()
 
         return audioStream
     }
