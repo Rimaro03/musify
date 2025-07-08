@@ -11,7 +11,6 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.session.MediaController
 import com.rimaro.musify.domain.model.TrackObject
 import com.rimaro.musify.domain.repository.SpotifyRepository
-import com.rimaro.musify.utils.NewPipeHelper
 import com.rimaro.musify.utils.SpotifyTokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred

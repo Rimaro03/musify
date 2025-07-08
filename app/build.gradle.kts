@@ -58,6 +58,7 @@ android {
     }
 }
 
+//noinspection UseTomlInstead
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -77,7 +78,7 @@ dependencies {
 
     implementation("com.github.teamnewpipe:NewPipeExtractor:0.24.6")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 
     // media3
     implementation("androidx.media3:media3-exoplayer:1.7.1")
