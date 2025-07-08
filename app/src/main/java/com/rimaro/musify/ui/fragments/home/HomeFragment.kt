@@ -5,12 +5,21 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.GridLayout
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.cardview.widget.CardView
+import androidx.core.net.toUri
+import androidx.core.view.children
+import androidx.core.view.get
+import androidx.core.view.marginLeft
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.rimaro.musify.R
 import com.rimaro.musify.databinding.FragmentHomeBinding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import com.bumptech.glide.Glide
 import com.rimaro.musify.ui.fragments.auth.AuthFragment
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -56,14 +65,28 @@ class HomeFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val container = view.findViewById<GridLayout>(R.id.pinned_playlist_grid)
         viewModel.userPlaylists.observe(viewLifecycleOwner) {
-            val navigateAction = {
-                val action = HomeFragmentDirections.actionHomeFragmentToPlaylistFragment(it.getOrNull(it.size-4)?.id ?: "")
-                findNavController().navigate(action)
-            }
+            for(playlist in it.subList(0, 8)) {
+                val navigateAction = {
+                    val action = HomeFragmentDirections.actionHomeFragmentToPlaylistFragment(playlist.id)
+                    Log.d("HomeFragment", "play id: ${playlist.id}")
+                    findNavController().navigate(action)
+                }
 
-            binding.firstPlaylist.text = it.getOrNull(it.size - 4)?.name ?: ""
-            binding.firstPlaylist.setOnClickListener { navigateAction() }
+                val card = LayoutInflater
+                    .from(requireContext())
+                    .inflate(R.layout.pinned_playlist_card, container, false)
+
+                Glide.with(requireContext())
+                    .load(playlist.images?.first()?.url?.toUri())
+                    .placeholder(androidx.media3.session.R.drawable.media3_icon_album)
+                    .into(card.findViewById<ImageView>(R.id.pinned_playlist_icon))
+
+                card.findViewById<TextView>(R.id.pinned_playlist_title).text = playlist.name
+                card.setOnClickListener { navigateAction() }
+                container.addView(card)
+            }
         }
     }
 

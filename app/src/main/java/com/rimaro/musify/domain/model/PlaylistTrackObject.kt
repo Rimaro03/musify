@@ -9,5 +9,5 @@ data class PlaylistTrackObject(
     val added_at: String,
     val added_by: UserObject,
     val is_local: Boolean,
-    val track: TrackObject
+    val track: TrackObject?
 )

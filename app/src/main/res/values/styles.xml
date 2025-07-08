@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="PinnedPlaylistStyle">
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@null</item>
+    <style name="PinnedPlaylistStyle" parent="CardView">
+        <item name="android:background">?attr/colorSecondaryContainer</item>
+        <item name="cardCornerRadius">@dimen/card_corner_radius</item>
     </style>
 </resources>

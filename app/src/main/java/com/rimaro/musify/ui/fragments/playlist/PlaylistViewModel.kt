@@ -29,7 +29,6 @@ import javax.inject.Inject
 class PlaylistViewModel @Inject constructor(
     private val spotifyRepository: SpotifyRepository,
     private val spotifyTokenManager: SpotifyTokenManager,
-    private val newPipeHelper: NewPipeHelper
 ): ViewModel() {
     private val _userTopTracks: MutableLiveData<List<TrackObject>> = MutableLiveData()
     val userTopTracks: LiveData<List<TrackObject>> = _userTopTracks
@@ -54,15 +53,15 @@ class PlaylistViewModel @Inject constructor(
         val tracks = withContext(Dispatchers.IO) {
             spotifyRepository
                 .getPlaylistById("Bearer $token", playlistId)
-                .tracks.items
+                .tracks.items.filter { it.track != null }
         }
         // immediatly display songs
-        _userTopTracks.value = tracks.map { it.track }
+        _userTopTracks.value = tracks.map { it.track!! }
 
         // keeps child jobs cancellable with the parent
         coroutineScope {
             tracks.forEach { trackItem ->
-                val track = trackItem.track
+                val track = trackItem.track!!
                 // Skip if already downloading
                 if (_urlJobs.containsKey(track.id)) return@forEach
 
