@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -63,10 +64,24 @@ class HomeFragment: Fragment() {
 
         val container = view.findViewById<GridLayout>(R.id.pinned_playlist_grid)
         viewModel.userPlaylists.observe(viewLifecycleOwner) {
-            for(playlist in it.subList(0, 8)) {
+            val navigateAction = {
+                val action = HomeFragmentDirections.actionHomeFragmentToPlaylistFragment("-1")
+                findNavController().navigate(action)
+            }
+            val card = LayoutInflater
+                .from(requireContext())
+                .inflate(R.layout.pinned_playlist_card, container, false)
+
+            card.findViewById<TextView>(R.id.pinned_playlist_title)
+                .text = requireContext().getString(R.string.liked_tracks)
+            card.findViewById<ImageView>(R.id.pinned_playlist_icon)
+                .setImageResource(androidx.media3.session.R.drawable.media3_icon_heart_filled)
+            card.setOnClickListener { navigateAction() }
+            container.addView(card)
+
+            for(playlist in it.subList(0, 7)) {
                 val navigateAction = {
                     val action = HomeFragmentDirections.actionHomeFragmentToPlaylistFragment(playlist.id)
-                    Log.d("HomeFragment", "play id: ${playlist.id}")
                     findNavController().navigate(action)
                 }
 

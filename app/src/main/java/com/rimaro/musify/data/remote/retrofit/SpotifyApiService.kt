@@ -3,6 +3,7 @@ package com.rimaro.musify.data.remote.retrofit
 import com.rimaro.musify.domain.model.SimplifiedPlaylistObject
 import com.rimaro.musify.domain.model.GenericPlaylistsResponse
 import com.rimaro.musify.domain.model.PlaylistResponse
+import com.rimaro.musify.domain.model.SavedTrackObject
 import com.rimaro.musify.domain.model.UserProfileResponse
 import com.rimaro.musify.domain.model.UserTopTrackResponse
 import retrofit2.http.GET
@@ -20,10 +21,14 @@ interface SpotifyApiService {
         @Header("Authorization") authorization: String,
     ): UserTopTrackResponse
 
-    @GET("users/{user_id}/playlists")
+    @GET("me/tracks")
+    suspend fun getUserSavedTracks(
+        @Header("Authorization") authorization: String,
+    ): GenericPlaylistsResponse<SavedTrackObject>
+
+    @GET("me/playlists")
     suspend fun getUserPlaylists(
         @Header("Authorization") authorization: String,
-        @Path("user_id") userId: String
     ): GenericPlaylistsResponse<SimplifiedPlaylistObject>
 
     @GET("playlists/{playlist_id}")

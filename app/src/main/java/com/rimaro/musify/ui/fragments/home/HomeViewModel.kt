@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rimaro.musify.domain.model.SavedTrackObject
 import com.rimaro.musify.domain.model.SimplifiedPlaylistObject
 import com.rimaro.musify.domain.repository.SpotifyRepository
 import com.rimaro.musify.utils.SpotifyTokenManager
@@ -30,10 +31,10 @@ class HomeViewModel @Inject constructor(
     fun retrieveUserPlaylists() {
         viewModelScope.launch {
             val token = spotifyTokenManager.retrieveAccessToken()
-            val userProfile = spotifyRepository.getUserProfile("Bearer $token")
-            val userId = userProfile.id
+            // val userProfile = spotifyRepository.getUserProfile("Bearer $token")
 
-            val userPlaylists = spotifyRepository.getUserPlaylists("Bearer $token", userId)
+            // val savedTracks = spotifyRepository.getUserSavedTracks("Bearer $token")
+            val userPlaylists = spotifyRepository.getUserPlaylists("Bearer $token")
             for(playlist in userPlaylists.items) {
                 Log.d("HomeViewModel", "Playlist: ${playlist.name}")
             }

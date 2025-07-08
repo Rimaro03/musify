@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/authFragment"
         android:name="com.rimaro.musify.ui.fragments.auth.AuthFragment"
-        android:label="fragment_auth"
+        android:label="Authenticate"
         tools:layout="@layout/fragment_auth">
         <deepLink
             app:uri="musify://auth" />
@@ -19,7 +19,7 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.rimaro.musify.ui.fragments.home.HomeFragment"
-        android:label="fragment_home"
+        android:label="Musify"
         tools:layout="@layout/fragment_home" >
         <action
             android:id="@+id/action_homeFragment_to_playlistFragment"
@@ -32,7 +32,7 @@
     <fragment
         android:id="@+id/playlistFragment"
         android:name="com.rimaro.musify.ui.fragments.playlist.PlaylistFragment"
-        android:label="fragment_playlist"
+        android:label="Playlist"
         tools:layout="@layout/fragment_playlist" >
         <argument
             android:name="playlistId"

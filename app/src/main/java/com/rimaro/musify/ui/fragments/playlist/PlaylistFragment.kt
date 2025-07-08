@@ -21,7 +21,7 @@ import kotlin.getValue
 
 @AndroidEntryPoint
 class PlaylistFragment : Fragment() {
-    private var _binding: FragmentPlaylistBinding? = null // TODO
+    private var _binding: FragmentPlaylistBinding? = null
     private val binding get() = _binding!!
 
     private val viewModel: PlaylistViewModel by viewModels()
@@ -67,7 +67,7 @@ class PlaylistFragment : Fragment() {
         }
         val trackAdapter = TrackAdapter(::onTrackClicked)
         trackRecyclerView.adapter = trackAdapter
-        viewModel.userTopTracks.observe(viewLifecycleOwner) {
+        viewModel.trackList.observe(viewLifecycleOwner) {
             trackAdapter.submitList(it)
         }
     }

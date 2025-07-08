@@ -52,8 +52,11 @@ class SpotifyRepository @Inject constructor(
     suspend fun getUserTopTracks(authorization: String) =
         spotifyApiService.getUserTopTrack(authorization = authorization)
 
-    suspend fun getUserPlaylists(authorization: String, userId: String) =
-        spotifyApiService.getUserPlaylists(authorization = authorization, userId = userId)
+    suspend fun getUserSavedTracks(authorization: String) =
+        spotifyApiService.getUserSavedTracks(authorization = authorization)
+
+    suspend fun getUserPlaylists(authorization: String) =
+        spotifyApiService.getUserPlaylists(authorization = authorization)
 
     suspend fun getPlaylistById(authorization: String, playlistId: String) =
         spotifyApiService.getPlaylist(authorization = authorization, playlistId = playlistId)

@@ -9,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.session.MediaController
+import com.rimaro.musify.domain.model.PlaylistTrackObject
+import com.rimaro.musify.domain.model.SavedTrackObject
 import com.rimaro.musify.domain.model.TrackObject
 import com.rimaro.musify.domain.repository.SpotifyRepository
 import com.rimaro.musify.utils.SpotifyTokenManager
@@ -29,8 +31,8 @@ class PlaylistViewModel @Inject constructor(
     private val spotifyRepository: SpotifyRepository,
     private val spotifyTokenManager: SpotifyTokenManager,
 ): ViewModel() {
-    private val _userTopTracks: MutableLiveData<List<TrackObject>> = MutableLiveData()
-    val userTopTracks: LiveData<List<TrackObject>> = _userTopTracks
+    private val _trackList: MutableLiveData<List<TrackObject>> = MutableLiveData()
+    val trackList: LiveData<List<TrackObject>> = _trackList
 
     var mediaController: MediaController? = null
 
@@ -44,23 +46,37 @@ class PlaylistViewModel @Inject constructor(
         retrieveUserTopTracks(playlistId)
     }
 
+    // TODO: use the "next" response field to retrieve the next page of results when limit < total results (e.g. liked songs)
     fun retrieveUserTopTracks(playlistId: String) = viewModelScope.launch {
         // moving API requests off the main thread with withContext(Dispatchers.IO) to the IO thread
         val token = withContext(Dispatchers.IO) {
             spotifyTokenManager.retrieveAccessToken()
         }
-        val tracks = withContext(Dispatchers.IO) {
-            spotifyRepository
-                .getPlaylistById("Bearer $token", playlistId)
-                .tracks.items.filter { it.track != null }
+        val tracks: List<TrackObject> = if(playlistId == "-1"){
+            withContext(Dispatchers.IO) {
+                spotifyRepository
+                    .getUserSavedTracks("Bearer $token")
+                    .items
+                    .filter { it.track != null }
+                    .map { it.track!! }
+            }
+        } else {
+
+            withContext(Dispatchers.IO) {
+                spotifyRepository
+                    .getPlaylistById("Bearer $token", playlistId)
+                    .tracks.items
+                    .filter { it.track != null }
+                    .map { it.track!! }
+            }
         }
         // immediatly display songs
-        _userTopTracks.value = tracks.map { it.track!! }
+        _trackList.value = tracks.map { it }
 
         // keeps child jobs cancellable with the parent
         coroutineScope {
             tracks.forEach { trackItem ->
-                val track = trackItem.track!!
+                val track = trackItem
                 // Skip if already downloading
                 if (_urlJobs.containsKey(track.id)) return@forEach
 

@@ -12,6 +12,9 @@
     <!-- auth fragment -->
     <string name="login">Login</string>
 
+    <!-- home fragment -->
+    <string name="liked_tracks">Liked songs</string>
+
     <!-- playlist fragment -->
     <string name="pin_play_desc">Pinned playlist</string>
 </resources>
