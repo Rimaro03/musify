@@ -14,7 +14,15 @@
 
     <!-- home fragment -->
     <string name="liked_tracks">Liked songs</string>
+    <string name="pin_play_desc">Pinned playlist</string>
 
     <!-- playlist fragment -->
-    <string name="pin_play_desc">Pinned playlist</string>
+    <string name="playlist_img_desc">Playlist image</string>
+    <string name="track_img_desc">Track icon</string>
+    <string name="more_vert">More vert</string>
+    <string name="add_fav">Add to favourite</string>
+    <string name="download">Download tracks</string>
+    <string name="play_playlist">Play playlist tracks</string>
+    <string name="shuffle">Shuffle</string>
+    <string name="play_track">Play track</string>
 </resources>

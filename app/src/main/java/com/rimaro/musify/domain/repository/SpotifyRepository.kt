@@ -4,7 +4,7 @@ import com.rimaro.musify.data.local.dao.AudioStreamUrlDAO
 import com.rimaro.musify.data.local.entity.AudioStreamUrl
 import com.rimaro.musify.data.remote.retrofit.SpotifyApiService
 import com.rimaro.musify.data.remote.retrofit.SpotifyAuthService
-import com.rimaro.musify.domain.model.TrackObject
+import com.rimaro.musify.data.remote.model.TrackObject
 import com.rimaro.musify.utils.NewPipeHelper
 import org.schabi.newpipe.extractor.stream.AudioStream
 import javax.inject.Inject

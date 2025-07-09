@@ -6,8 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rimaro.musify.domain.model.SavedTrackObject
-import com.rimaro.musify.domain.model.SimplifiedPlaylistObject
+import com.rimaro.musify.data.remote.model.SimplifiedPlaylistObject
 import com.rimaro.musify.domain.repository.SpotifyRepository
 import com.rimaro.musify.utils.SpotifyTokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel

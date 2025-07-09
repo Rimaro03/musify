@@ -32,7 +32,7 @@
     <fragment
         android:id="@+id/playlistFragment"
         android:name="com.rimaro.musify.ui.fragments.playlist.PlaylistFragment"
-        android:label="Playlist"
+        android:label=""
         tools:layout="@layout/fragment_playlist" >
         <argument
             android:name="playlistId"

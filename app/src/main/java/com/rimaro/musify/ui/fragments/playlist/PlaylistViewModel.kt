@@ -5,13 +5,14 @@ import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.session.MediaController
-import com.rimaro.musify.domain.model.PlaylistTrackObject
-import com.rimaro.musify.domain.model.SavedTrackObject
-import com.rimaro.musify.domain.model.TrackObject
+import com.rimaro.musify.data.remote.model.TrackObject
+import com.rimaro.musify.domain.model.PlaylistLocal
+import com.rimaro.musify.domain.model.UserLocal
 import com.rimaro.musify.domain.repository.SpotifyRepository
 import com.rimaro.musify.utils.SpotifyTokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +22,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -41,37 +46,62 @@ class PlaylistViewModel @Inject constructor(
 
     private val _playlistId: MutableLiveData<String> = MutableLiveData()
 
+    private val _playlistData: MutableLiveData<PlaylistLocal> = MutableLiveData()
+    val playlistData: LiveData<PlaylistLocal> = _playlistData
+
     fun setPlaylistId(playlistId: String) {
         _playlistId.value = playlistId
-        retrieveUserTopTracks(playlistId)
+        getPlaylist(playlistId)
     }
 
     // TODO: use the "next" response field to retrieve the next page of results when limit < total results (e.g. liked songs)
-    fun retrieveUserTopTracks(playlistId: String) = viewModelScope.launch {
+    fun getPlaylist(playlistId: String) = viewModelScope.launch {
         // moving API requests off the main thread with withContext(Dispatchers.IO) to the IO thread
         val token = withContext(Dispatchers.IO) {
             spotifyTokenManager.retrieveAccessToken()
         }
-        val tracks: List<TrackObject> = if(playlistId == "-1"){
-            withContext(Dispatchers.IO) {
-                spotifyRepository
-                    .getUserSavedTracks("Bearer $token")
-                    .items
-                    .filter { it.track != null }
-                    .map { it.track!! }
+        var tracks: List<TrackObject>
+        if(playlistId == "-1"){
+            val playlist = withContext(Dispatchers.IO) {
+                spotifyRepository.getUserSavedTracks("Bearer $token")
             }
-        } else {
 
-            withContext(Dispatchers.IO) {
-                spotifyRepository
-                    .getPlaylistById("Bearer $token", playlistId)
-                    .tracks.items
-                    .filter { it.track != null }
-                    .map { it.track!! }
+            val playlistData = PlaylistLocal(
+                name = "Liked Songs",
+                imageUrl = null,
+                owner = UserLocal(
+                    displayName = "You",
+                    iconUrl = null
+                ),
+                description = null
+            )
+            _playlistData.value = playlistData
+
+            tracks = playlist.items
+                .filter { it.track != null }
+                .map { it.track!! }
+        } else {
+            val playlist = withContext(Dispatchers.IO) {
+                spotifyRepository.getPlaylistById("Bearer $token", playlistId)
             }
+
+            val playlistData = PlaylistLocal(
+                name = playlist.name,
+                imageUrl = playlist.images?.first()?.url,
+                owner = UserLocal(
+                    displayName = playlist.owner.display_name ?: "",
+                    iconUrl = "" //TODO: to get iconUrl, make request to spotify API
+                ),
+                description = playlist.description
+            )
+            _playlistData.value = playlistData
+
+            tracks = playlist.tracks.items
+                .filter { it.track != null }
+                .map { it.track!! }
         }
         // immediatly display songs
-        _trackList.value = tracks.map { it }
+        _trackList.value = tracks
 
         // keeps child jobs cancellable with the parent
         coroutineScope {
@@ -110,7 +140,9 @@ class PlaylistViewModel @Inject constructor(
                     Log.d("PlaylistViewModel", "Waiting for URL...")
                     return@launch
                 }
-                val audioStreamURL = _audioStreamURLs.value[track.id] ?: error("No audio stream found for ${track.name}")
+                val audioStreamURL = _audioStreamURLs.asStateFlow()
+                    .filter { it.containsKey(track.id) }
+                    .first()[track.id]
 
                 val artists = track.artists.joinToString(", ") { it.name }
                 val mediaItem = MediaItem.Builder()
@@ -124,7 +156,7 @@ class PlaylistViewModel @Inject constructor(
                             .build()
                     )
                     .build()
-                mediaController?.setMediaItem(mediaItem)
+                mediaController?.addMediaItem(mediaItem)
                 mediaController?.prepare()
                 mediaController?.play()
 
@@ -132,5 +164,47 @@ class PlaylistViewModel @Inject constructor(
                 Log.e("PlaylistViewModel", "Error: $e")
             }
         }
+    }
+
+    // TODO: handle different cases: player not playing, playing another playlist, playing a single song etc...
+    fun togglePlaylistPlayButton() {}
+
+    fun playCurrentPlaylist() {
+        viewModelScope.launch {
+            val tracks = _trackList.asFlow()
+                .first { !it.isNullOrEmpty() }
+
+            for(track in tracks) {
+                val audioStreamURL = _audioStreamURLs.asStateFlow()
+                    .filter { it.containsKey(track.id) }
+                    .first()[track.id]
+
+                val artists = track.artists.joinToString(", ") { it.name }
+                val mediaItem = MediaItem.Builder()
+                    .setMediaId(track.id)
+                    .setUri(audioStreamURL)
+                    .setMediaMetadata(
+                        MediaMetadata.Builder()
+                            .setArtist(artists)
+                            .setTitle(track.name)
+                            .setArtworkUri(track.album.images.first().url.toUri())
+                            .build()
+                    )
+                    .build()
+                mediaController?.addMediaItem(mediaItem)
+                mediaController?.prepare()
+                mediaController?.play()
+            }
+        }
+    }
+
+    fun toggleShuffle() {
+        val newShuffleModeEnabled = !mediaController?.shuffleModeEnabled!!
+        mediaController?.shuffleModeEnabled = newShuffleModeEnabled
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.d("PlaylistViewModel", "onCleared")
     }
 }

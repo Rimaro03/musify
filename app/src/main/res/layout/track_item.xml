@@ -1,17 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_columnWeight="1"
+    app:cardBackgroundColor="@android:color/transparent"
+    app:cardElevation="0dp"
+    android:layout_marginBottom="15dp" >
 
-    <TextView
-        android:id="@+id/track_name"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:padding="10dp"/>
+        android:orientation="horizontal"
+        android:layout_gravity="center_vertical"
+        android:paddingStart="0dp"
+        android:paddingEnd="2dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- image view -->
+        <ImageView
+            android:id="@+id/track_icon"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:contentDescription="@string/track_img_desc"
+
+            android:src="@drawable/media3_icon_artist"/>
+
+        <Space
+            android:layout_width="6dp"
+            android:layout_height="0dp" />
+
+        <LinearLayout
+            android:id="@+id/click_to_play_zone"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:layout_gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/track_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textSize="16sp"
+                android:textColor="#FFFFFF"
+                android:layout_gravity="center_vertical"
+                android:layout_marginBottom="2dp"/>
+
+            <TextView
+                android:id="@+id/track_artists"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textSize="13sp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="1dp"/>
+
+        </LinearLayout>
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/add_circle_24px"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="10dp"
+            android:contentDescription="@string/add_fav"
+            style="@style/icon_button_style"/>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -13,7 +13,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.common.util.concurrent.MoreExecutors
 import com.rimaro.musify.databinding.FragmentPlaylistBinding
-import com.rimaro.musify.domain.model.TrackObject
+import com.rimaro.musify.data.remote.model.TrackObject
 import com.rimaro.musify.service.PlaybackService
 import com.rimaro.musify.ui.adapters.TrackAdapter
 import dagger.hilt.android.AndroidEntryPoint
@@ -29,6 +29,7 @@ class PlaylistFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
+
         val sessionToken = SessionToken(
             requireContext(),
             ComponentName(requireContext(), PlaybackService::class.java)
@@ -41,6 +42,7 @@ class PlaylistFragment : Fragment() {
         controllerFuture.addListener (
             {
                 val controller = controllerFuture.get()
+                controller.shuffleModeEnabled = false
                 viewModel.mediaController = controller
             },
             MoreExecutors.directExecutor()
@@ -58,17 +60,25 @@ class PlaylistFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         viewModel.setPlaylistId(args.playlistId)
+
         val trackRecyclerView = binding.trackRv
         trackRecyclerView.layoutManager = LinearLayoutManager(view.context)
         fun onTrackClicked(track: TrackObject) {
             viewModel.playTrack(track)
         }
-        val trackAdapter = TrackAdapter(::onTrackClicked)
+        val trackAdapter = TrackAdapter(
+            ::onTrackClicked,
+            onAddFavClicked = {},
+            onShuffleClicked = { viewModel.toggleShuffle() },
+            onPlayTrackClicked = { viewModel.togglePlaylistPlayButton() }
+        )
         trackRecyclerView.adapter = trackAdapter
         viewModel.trackList.observe(viewLifecycleOwner) {
             trackAdapter.submitList(it)
+        }
+        viewModel.playlistData.observe(viewLifecycleOwner) {
+            trackAdapter.setPlaylistData(it)
         }
     }
 

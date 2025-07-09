@@ -1,4 +1,4 @@
-package com.rimaro.musify.domain.model
+package com.rimaro.musify.data.remote.model
 
 import kotlinx.serialization.Serializable
 

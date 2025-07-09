@@ -1,11 +1,11 @@
 package com.rimaro.musify.data.remote.retrofit
 
-import com.rimaro.musify.domain.model.SimplifiedPlaylistObject
-import com.rimaro.musify.domain.model.GenericPlaylistsResponse
-import com.rimaro.musify.domain.model.PlaylistResponse
-import com.rimaro.musify.domain.model.SavedTrackObject
-import com.rimaro.musify.domain.model.UserProfileResponse
-import com.rimaro.musify.domain.model.UserTopTrackResponse
+import com.rimaro.musify.data.remote.model.SimplifiedPlaylistObject
+import com.rimaro.musify.data.remote.model.GenericPlaylistsResponse
+import com.rimaro.musify.data.remote.model.PlaylistResponse
+import com.rimaro.musify.data.remote.model.SavedTrackObject
+import com.rimaro.musify.data.remote.model.UserProfileResponse
+import com.rimaro.musify.data.remote.model.UserTopTrackResponse
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Path

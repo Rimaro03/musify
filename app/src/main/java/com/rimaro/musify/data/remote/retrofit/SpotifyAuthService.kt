@@ -1,6 +1,6 @@
 package com.rimaro.musify.data.remote.retrofit
 
-import com.rimaro.musify.domain.model.SpotifyToken
+import com.rimaro.musify.data.remote.model.SpotifyToken
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.Header
