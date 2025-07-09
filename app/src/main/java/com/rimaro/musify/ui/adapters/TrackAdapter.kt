@@ -2,6 +2,8 @@ package com.rimaro.musify.ui.adapters
 
 import android.content.res.ColorStateList
 import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,10 +31,28 @@ class TrackAdapter(
     private var _playlistData: PlaylistLocal? = null
     private var playerIsPlaying = false
     private var shuffleModeEnabled = false
+    private var currentTrackId: String? = null
 
     fun setPlaylistData(data: PlaylistLocal) {
         _playlistData = data
         notifyItemChanged(0)
+    }
+
+    fun setCurrentTrackId(id: String?) {
+        currentTrackId?.let {
+            notifyItemChanged(getTrackIndexById(it))
+        }
+        val updateIndex = if(id == null) {
+            getTrackIndexById(currentTrackId!!)
+        } else {
+            getTrackIndexById(id)
+        }
+        currentTrackId = id
+        if(updateIndex != -1) {
+            notifyItemChanged(updateIndex)
+        } else {
+            notifyItemRangeChanged(1, currentList.size)
+        }
     }
 
     fun View.animateClick() {
@@ -117,6 +137,12 @@ class TrackAdapter(
 
         fun bind(track: TrackObject, onTrackClicked: (TrackObject) -> Unit) {
             trackName.text = track.name
+            val defaultColor = trackName.currentTextColor
+            if(track.id == currentTrackId) {
+                trackName.setTextColor(ContextCompat.getColor(itemView.context, R.color.md_theme_tertiaryContainer_mediumContrast))
+            } else {
+                trackName.setTextColor(defaultColor)
+            }
             trackArtists.text = track.artists.joinToString(", ") { it.name }
             Glide.with(itemView.context)
                 .load(track.album.images[0].url)
@@ -153,6 +179,16 @@ class TrackAdapter(
 
     override fun getItemViewType(position: Int): Int {
         return if (position == 0) VIEW_TYPE_HEADER else VIEW_TYPE_ITEM
+    }
+
+    fun getTrackIndexById(id: String): Int {
+        for (i in 0 until currentList.size) {
+            Log.d("TrackAdapter", "comparing $id with ${currentList[i].id}")
+            if (currentList[i].id == id) {
+                return i + 1
+            }
+        }
+        return -1
     }
 }
 

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
@@ -15,6 +16,7 @@ import com.google.common.util.concurrent.MoreExecutors
 import com.rimaro.musify.databinding.FragmentPlaylistBinding
 import com.rimaro.musify.data.remote.model.TrackObject
 import com.rimaro.musify.service.PlaybackService
+import com.rimaro.musify.ui.PlaybackViewmodel
 import com.rimaro.musify.ui.adapters.TrackAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.getValue
@@ -25,18 +27,18 @@ class PlaylistFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: PlaylistViewModel by viewModels()
+    private val playbackViewModel: PlaybackViewmodel by activityViewModels()
     val args: PlaylistFragmentArgs by navArgs()
 
     override fun onStart() {
         super.onStart()
 
-        val sessionToken = SessionToken(
-            requireContext(),
-            ComponentName(requireContext(), PlaybackService::class.java)
-        )
         val controllerFuture = MediaController.Builder(
             requireContext(),
-            sessionToken
+            SessionToken(
+                requireContext(),
+                ComponentName(requireContext(), PlaybackService::class.java)
+            )
         ).buildAsync()
 
         controllerFuture.addListener (
@@ -44,6 +46,7 @@ class PlaylistFragment : Fragment() {
                 val controller = controllerFuture.get()
                 controller.shuffleModeEnabled = false
                 viewModel.mediaController = controller
+                playbackViewModel.observePlayer(controller)
             },
             MoreExecutors.directExecutor()
         )
@@ -71,7 +74,7 @@ class PlaylistFragment : Fragment() {
             ::onTrackClicked,
             onAddFavClicked = {},
             onShuffleClicked = { viewModel.toggleShuffle() },
-            onPlayTrackClicked = { viewModel.togglePlaylistPlayButton() }
+            onPlayTrackClicked = { viewModel.playCurrentPlaylist() }
         )
         trackRecyclerView.adapter = trackAdapter
         viewModel.trackList.observe(viewLifecycleOwner) {
@@ -79,6 +82,9 @@ class PlaylistFragment : Fragment() {
         }
         viewModel.playlistData.observe(viewLifecycleOwner) {
             trackAdapter.setPlaylistData(it)
+        }
+        playbackViewModel.currentTrackId.observe(viewLifecycleOwner) {
+            trackAdapter.setCurrentTrackId(it)
         }
     }
 

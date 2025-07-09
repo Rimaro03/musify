@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -48,6 +47,7 @@ class PlaylistViewModel @Inject constructor(
 
     private val _playlistData: MutableLiveData<PlaylistLocal> = MutableLiveData()
     val playlistData: LiveData<PlaylistLocal> = _playlistData
+
 
     fun setPlaylistId(playlistId: String) {
         _playlistId.value = playlistId

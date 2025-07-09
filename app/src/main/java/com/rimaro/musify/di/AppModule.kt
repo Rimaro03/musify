@@ -80,7 +80,6 @@ object AppModule {
     fun provideNewPipeHelper() : NewPipeHelper = NewPipeHelper()
 
     // Room database
-
     @Provides
     @Singleton
     fun provideDatabase(
@@ -96,4 +95,5 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAudioStreamUrlDao(db: AppDatabase) = db.audioStreamUrlDao()
+
 }
