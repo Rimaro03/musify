@@ -1,4 +1,4 @@
-package com.rimaro.musify.ui
+package com.rimaro.musify.utils
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

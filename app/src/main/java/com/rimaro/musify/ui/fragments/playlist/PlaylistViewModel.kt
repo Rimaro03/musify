@@ -14,7 +14,7 @@ import com.rimaro.musify.data.remote.model.TrackObject
 import com.rimaro.musify.domain.model.PlaylistLocal
 import com.rimaro.musify.domain.model.UserLocal
 import com.rimaro.musify.domain.repository.SpotifyRepository
-import com.rimaro.musify.ui.PlaybackManager
+import com.rimaro.musify.utils.PlaybackManager
 import com.rimaro.musify.utils.SpotifyTokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred
@@ -63,18 +63,28 @@ class PlaylistViewModel @Inject constructor(
 
     val playingTrackId: LiveData<String> = playbackManager.playingTrackId
 
-    fun setPlaylistId(playlistId: String) {
-        _selectedPlaylistId.value = playlistId
-        getPlaylist(playlistId)
-        _playButtonStatus.value = getPlayButtonStatus()
-        _shuffleEnabled.value = _mediaController?.shuffleModeEnabled == true
-    }
-
     private val _playButtonStatus: MutableLiveData<PlayButtonState> = MutableLiveData()
     var playButtonStatus: LiveData<PlayButtonState> = _playButtonStatus
 
     private val _shuffleEnabled: MutableLiveData<Boolean> = MutableLiveData()
     val shuffleEnabled: LiveData<Boolean> = _shuffleEnabled
+
+    private val _playlistFollowed: MutableLiveData<Boolean> = MutableLiveData(false)
+    val playlistFollowed: LiveData<Boolean> = _playlistFollowed
+
+    fun setPlaylistId(playlistId: String) {
+        _selectedPlaylistId.value = playlistId
+        getPlaylist(playlistId)
+        initPlaylist()
+    }
+
+    private fun initPlaylist() {
+        viewModelScope.launch {
+            _playButtonStatus.value = getPlayButtonStatus()
+            _shuffleEnabled.value = _mediaController?.shuffleModeEnabled == true
+            _playlistFollowed.value = checkIfPlaylistIsFollowed()
+        }
+    }
 
     // TODO: use the "next" response field to retrieve the next page of results when limit < total results (e.g. liked songs)
     fun getPlaylist(playlistId: String) = viewModelScope.launch {
@@ -149,46 +159,13 @@ class PlaylistViewModel @Inject constructor(
         }
     }
 
-    fun isUrlReady(track: TrackObject): Boolean {
-        return _audioStreamURLs.value.containsKey(track.id)
-    }
-
     // TODO: same issue here with streaming.let
     @OptIn(ExperimentalCoroutinesApi::class)
     fun playTrack(track: TrackObject){
-        viewModelScope.launch {
-            try {
-                if (!isUrlReady(track)) {
-                    Log.d("PlaylistViewModel", "Waiting for URL...")
-                    return@launch
-                }
-                val audioStreamURL = _audioStreamURLs.asStateFlow()
-                    .filter { it.containsKey(track.id) }
-                    .first()[track.id]
-
-                val artists = track.artists.joinToString(", ") { it.name }
-                val mediaItem = MediaItem.Builder()
-                    .setMediaId(track.id)
-                    .setUri(audioStreamURL)
-                    .setMediaMetadata(
-                        MediaMetadata.Builder()
-                            .setArtist(artists)
-                            .setTitle(track.name)
-                            .setArtworkUri(track.album.images.first().url.toUri())
-                            .build()
-                    )
-                    .build()
-
-                _mediaController?.setMediaItem(mediaItem)
-                _mediaController?.prepare()
-                _mediaController?.play()
-
-                addTracksToQueue(startIndex = _trackList.value!!.indexOf(track) + 1)
-
-            } catch (e: Exception) {
-                Log.e("PlaylistViewModel", "Error: $e")
-            }
-        }
+        _mediaController?.clearMediaItems()
+        addTracksToQueue(startIndex = _trackList.value!!.indexOf(track))
+        _mediaController?.prepare()
+        _mediaController?.play()
     }
 
     fun togglePlayButton() {
@@ -212,31 +189,15 @@ class PlaylistViewModel @Inject constructor(
         }
     }
 
-    fun getPlayButtonStatus(): PlayButtonState {
-        return if(_mediaController?.isPlaying == true) {
-            if(_selectedPlaylistId.value == playbackManager.playingPlaylistId.value) {
-                PlayButtonState.PLAYING
-            } else {
-                PlayButtonState.STOPPED
-            }
-        } else {
-            PlayButtonState.STOPPED
-        }
-    }
-
-    fun updatePlayButtonStatus() {
-        _playButtonStatus.value = getPlayButtonStatus()
-    }
-
     fun playCurrentPlaylist() {
-        viewModelScope.launch {
-            _mediaController?.clearMediaItems()
-            addTracksToQueue(startIndex = 0)
-        }
+        _mediaController?.clearMediaItems()
+        addTracksToQueue()
+        _mediaController?.prepare()
+        _mediaController?.play()
     }
 
     // insert all the tracks from startIndex to end into the queue
-    fun addTracksToQueue(startIndex: Int) {
+    fun addTracksToQueue(startIndex: Int = 0) {
         viewModelScope.launch {
             val tracks = _trackList.asFlow()
                 .first { !it.isNullOrEmpty() }
@@ -260,20 +221,59 @@ class PlaylistViewModel @Inject constructor(
                     )
                     .build()
                 _mediaController?.addMediaItem(mediaItem)
-                _mediaController?.prepare()
-                _mediaController?.play()
             }
         }
+    }
+
+    fun getPlayButtonStatus(): PlayButtonState {
+        return if(_mediaController?.isPlaying == true) {
+            if(_selectedPlaylistId.value == playbackManager.playingPlaylistId.value) {
+                PlayButtonState.PLAYING
+            } else {
+                PlayButtonState.STOPPED
+            }
+        } else {
+            PlayButtonState.STOPPED
+        }
+    }
+
+    fun updatePlayButtonStatus() {
+        _playButtonStatus.value = getPlayButtonStatus()
     }
 
     fun toggleShuffle() {
         val newShuffleModeEnabled = !_mediaController?.shuffleModeEnabled!!
         _shuffleEnabled.value = newShuffleModeEnabled
+        if(newShuffleModeEnabled) {
+            if (_mediaController?.mediaItemCount!! > 0)
+                _mediaController?.removeMediaItems(1, _mediaController?.mediaItemCount!!)
+            addTracksToQueue()
+        }
         _mediaController?.shuffleModeEnabled = newShuffleModeEnabled
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        Log.d("PlaylistViewModel", "onCleared")
+    // TODO: need a way to advice the home pinned playlist if a new playlist is unfollowed/followed
+    fun toggleFollowPlaylist() {
+        val newIsPlaylistFollowed = !_playlistFollowed.value!!
+        _playlistFollowed.value = newIsPlaylistFollowed
+        if(newIsPlaylistFollowed) {
+            viewModelScope.launch {
+                val token = spotifyTokenManager.retrieveAccessToken()
+                spotifyRepository.followPlaylist("Bearer $token", _selectedPlaylistId.value!!)
+            }
+        } else {
+            viewModelScope.launch {
+                val token = spotifyTokenManager.retrieveAccessToken()
+                spotifyRepository.unfollowPlaylist("Bearer $token", _selectedPlaylistId.value!!)
+            }
+        }
+    }
+
+    private suspend fun checkIfPlaylistIsFollowed(): Boolean {
+        if(_selectedPlaylistId.value!! == "-1") return true
+        return withContext(Dispatchers.IO) {
+            val token = spotifyTokenManager.retrieveAccessToken()
+            spotifyRepository.checkUserFollowsPlaylist("Bearer $token", _selectedPlaylistId.value!!)[0]
+        }
     }
 }

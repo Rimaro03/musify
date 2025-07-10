@@ -31,6 +31,7 @@ class TrackAdapter(
     private var playButtonState: PlaylistViewModel.PlayButtonState? = null
     private var shuffleModeEnabled = false
     private var currentTrackId: String? = null
+    private var followingPlaylist = false
 
     fun setPlaylistData(data: PlaylistLocal) {
         _playlistData = data
@@ -39,7 +40,6 @@ class TrackAdapter(
 
     fun setCurrentTrackId(id: String?) {
         currentTrackId = id
-        // change the previous track color to default
         notifyItemRangeChanged(0, currentList.size)
     }
 
@@ -50,6 +50,11 @@ class TrackAdapter(
 
     fun setShuffleMode(enabled: Boolean) {
         shuffleModeEnabled = enabled
+        notifyItemChanged(0)
+    }
+
+    fun setPlaylistFollowed(followed: Boolean) {
+        followingPlaylist = followed
         notifyItemChanged(0)
     }
 
@@ -104,6 +109,20 @@ class TrackAdapter(
             addFavBtn.setOnClickListener {
                 onAddFavClicked()
             }
+            if(followingPlaylist) {
+                addFavBtn.setImageResource(R.drawable.check_circle_24px)
+                addFavBtn.imageTintList = ColorStateList
+                    .valueOf(
+                        ContextCompat.getColor(
+                            itemView.context,
+                            R.color.md_theme_tertiaryContainer_mediumContrast
+                        )
+                    )
+            }
+            else{
+                addFavBtn.setImageResource(R.drawable.add_circle_24px)
+                addFavBtn.imageTintList = null
+            }
 
             shufflePlaylistBtn.setOnClickListener {
                 onShuffleClicked()
@@ -135,11 +154,10 @@ class TrackAdapter(
 
         fun bind(track: TrackObject, onTrackClicked: (TrackObject) -> Unit) {
             trackName.text = track.name
-            val defaultColor = trackName.currentTextColor
             if(track.id == currentTrackId) {
                 trackName.setTextColor(ContextCompat.getColor(itemView.context, R.color.md_theme_tertiaryContainer_mediumContrast))
             } else {
-                trackName.setTextColor(defaultColor)
+                trackName.setTextColor(-1)
             }
             trackArtists.text = track.artists.joinToString(", ") { it.name }
             Glide.with(itemView.context)

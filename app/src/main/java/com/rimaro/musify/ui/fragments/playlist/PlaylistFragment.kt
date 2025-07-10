@@ -62,7 +62,7 @@ class PlaylistFragment : Fragment() {
         fun onTrackClicked(track: TrackObject) = viewModel.playTrack(track)
         val trackAdapter = TrackAdapter(
             ::onTrackClicked,
-            onAddFavClicked = {},
+            onAddFavClicked = { viewModel.toggleFollowPlaylist() },
             onShuffleClicked = { viewModel.toggleShuffle() },
             onPlayButtonClicked = { viewModel.togglePlayButton() }
         )
@@ -81,6 +81,9 @@ class PlaylistFragment : Fragment() {
         }
         viewModel.shuffleEnabled.observe(viewLifecycleOwner) {
             trackAdapter.setShuffleMode(it)
+        }
+        viewModel.playlistFollowed.observe(viewLifecycleOwner) {
+            trackAdapter.setPlaylistFollowed(it)
         }
     }
 

@@ -60,4 +60,14 @@ class SpotifyRepository @Inject constructor(
 
     suspend fun getPlaylistById(authorization: String, playlistId: String) =
         spotifyApiService.getPlaylist(authorization = authorization, playlistId = playlistId)
+
+    suspend fun checkUserFollowsPlaylist(authorization: String, playlistId: String) =
+        spotifyApiService.checkUserFollowsPlaylist(authorization = authorization, playlistId = playlistId)
+
+    suspend fun followPlaylist(authorization: String, playlistId: String) =
+        spotifyApiService.followPlaylist(authorization = authorization, playlistId = playlistId)
+
+    suspend fun unfollowPlaylist(authorization: String, playlistId: String) =
+        spotifyApiService.unfollowPlaylist(authorization = authorization, playlistId = playlistId)
+
 }
