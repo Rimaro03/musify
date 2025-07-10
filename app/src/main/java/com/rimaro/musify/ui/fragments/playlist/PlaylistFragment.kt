@@ -2,7 +2,6 @@ package com.rimaro.musify.ui.fragments.playlist
 
 import android.content.ComponentName
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

@@ -50,8 +50,7 @@ class PlaylistViewModel @Inject constructor(
 
     fun setMediaController(mediaController: MediaController) {
         _mediaController = mediaController
-        playbackManager.observePlayer(mediaController)
-        Log.d("PlaylistViewModel", "setMediaController")
+        playbackManager.observePlayer(mediaController, ::updatePlayButtonStatus)
     }
 
     private val _urlJobs = mutableMapOf<String, Deferred<String?>>()
@@ -223,6 +222,10 @@ class PlaylistViewModel @Inject constructor(
         } else {
             PlayButtonState.STOPPED
         }
+    }
+
+    fun updatePlayButtonStatus() {
+        _playButtonStatus.value = getPlayButtonStatus()
     }
 
     fun playCurrentPlaylist() {
