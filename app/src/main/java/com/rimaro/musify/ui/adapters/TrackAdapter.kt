@@ -1,9 +1,6 @@
 package com.rimaro.musify.ui.adapters
 
 import android.content.res.ColorStateList
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,15 +18,17 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.rimaro.musify.data.remote.model.TrackObject
 import com.rimaro.musify.R
 import com.rimaro.musify.domain.model.PlaylistLocal
+import com.rimaro.musify.ui.fragments.playlist.PlaylistViewModel
 
+//TODO: future idea, divide the header item in playlist metadata and action buttons
 class TrackAdapter(
     val onTrackClicked: (TrackObject) -> Unit,
     val onAddFavClicked: () -> Unit,
     val onShuffleClicked: () -> Unit,
-    val onPlayTrackClicked: () -> Unit
+    val onPlayButtonClicked: () -> Unit
 ) : ListAdapter<TrackObject, RecyclerView.ViewHolder>(DiffCallback()) {
     private var _playlistData: PlaylistLocal? = null
-    private var playerIsPlaying = false
+    private var playButtonState: PlaylistViewModel.PlayButtonState? = null
     private var shuffleModeEnabled = false
     private var currentTrackId: String? = null
 
@@ -39,20 +38,14 @@ class TrackAdapter(
     }
 
     fun setCurrentTrackId(id: String?) {
-        currentTrackId?.let {
-            notifyItemChanged(getTrackIndexById(it))
-        }
-        val updateIndex = if(id == null) {
-            getTrackIndexById(currentTrackId!!)
-        } else {
-            getTrackIndexById(id)
-        }
         currentTrackId = id
-        if(updateIndex != -1) {
-            notifyItemChanged(updateIndex)
-        } else {
-            notifyItemRangeChanged(1, currentList.size)
-        }
+        // change the previous track color to default
+        notifyItemRangeChanged(0, currentList.size)
+    }
+
+    fun setPlayButtonState(newState: PlaylistViewModel.PlayButtonState) {
+        playButtonState = newState
+        notifyItemChanged(0)
     }
 
     fun View.animateClick() {
@@ -85,11 +78,11 @@ class TrackAdapter(
 
         val addFavBtn = itemView.findViewById<ImageButton>(R.id.add_fav_btn)
         val shufflePlaylistBtn = itemView.findViewById<ImageButton>(R.id.shuffle_playlist_btn)
-        val playTrackBtn = itemView.findViewById<ShapeableImageView>(R.id.play_track_bnt)
+        val playBtn = itemView.findViewById<ShapeableImageView>(R.id.play_track_bnt)
 
         fun bind(onAddFavClicked: () -> Unit,
                  onShuffleClicked: () -> Unit,
-                 onPlayTrackClicked: () -> Unit) {
+                 onPlayButtonClicked: () -> Unit) {
             playlistAuthor.text = _playlistData?.owner?.displayName ?: "Owner not available"
             playlistTitle.text = _playlistData?.name ?: "Playlist name not available"
             Glide.with(itemView.context)
@@ -106,6 +99,7 @@ class TrackAdapter(
             addFavBtn.setOnClickListener {
                 onAddFavClicked()
             }
+
             shufflePlaylistBtn.setOnClickListener {
                 onShuffleClicked()
                 shuffleModeEnabled = !shuffleModeEnabled
@@ -115,15 +109,15 @@ class TrackAdapter(
                 else
                     shufflePlaylistBtn.imageTintList = null
             }
-            playTrackBtn.setOnClickListener {
-                onPlayTrackClicked()
+
+            playBtn.setOnClickListener {
+                onPlayButtonClicked()
                 it.animateClick()
-                playerIsPlaying = !playerIsPlaying
-                if(playerIsPlaying)
-                    playTrackBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_pause)
-                else
-                    playTrackBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_play)
             }
+            if(playButtonState == PlaylistViewModel.PlayButtonState.PLAYING)
+                playBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_pause)
+            else
+                playBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_play)
         }
     }
 
@@ -169,7 +163,7 @@ class TrackAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if(holder is HeaderViewHolder) {
-            holder.bind(onAddFavClicked, onShuffleClicked, onPlayTrackClicked)
+            holder.bind(onAddFavClicked, onShuffleClicked, onPlayButtonClicked)
         } else if(holder is TrackViewHolder){
             holder.bind(getItem(position - 1), onTrackClicked)
         }
@@ -183,7 +177,6 @@ class TrackAdapter(
 
     fun getTrackIndexById(id: String): Int {
         for (i in 0 until currentList.size) {
-            Log.d("TrackAdapter", "comparing $id with ${currentList[i].id}")
             if (currentList[i].id == id) {
                 return i + 1
             }

@@ -20,6 +20,7 @@ import javax.inject.Singleton
 import com.rimaro.musify.di.Qualifiers.AuthRetrofit
 import com.rimaro.musify.di.Qualifiers.ApiRetrofit
 import com.rimaro.musify.data.local.db.AppDatabase
+import com.rimaro.musify.ui.PlaybackManager
 import com.rimaro.musify.utils.NewPipeHelper
 
 @Module
@@ -96,4 +97,9 @@ object AppModule {
     @Singleton
     fun provideAudioStreamUrlDao(db: AppDatabase) = db.audioStreamUrlDao()
 
+    @Provides
+    @Singleton
+    fun providePlaybackManager(): PlaybackManager {
+        return PlaybackManager()
+    }
 }

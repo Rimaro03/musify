@@ -14,6 +14,7 @@ import com.rimaro.musify.data.remote.model.TrackObject
 import com.rimaro.musify.domain.model.PlaylistLocal
 import com.rimaro.musify.domain.model.UserLocal
 import com.rimaro.musify.domain.repository.SpotifyRepository
+import com.rimaro.musify.ui.PlaybackManager
 import com.rimaro.musify.utils.SpotifyTokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred
@@ -29,30 +30,48 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.collections.first
 
 @HiltViewModel
 class PlaylistViewModel @Inject constructor(
     private val spotifyRepository: SpotifyRepository,
     private val spotifyTokenManager: SpotifyTokenManager,
+    private val playbackManager: PlaybackManager
 ): ViewModel() {
+    enum class PlayButtonState {
+        PLAYING,
+        STOPPED
+    }
+
     private val _trackList: MutableLiveData<List<TrackObject>> = MutableLiveData()
     val trackList: LiveData<List<TrackObject>> = _trackList
 
-    var mediaController: MediaController? = null
+    private var _mediaController: MediaController? = null
+
+    fun setMediaController(mediaController: MediaController) {
+        _mediaController = mediaController
+        playbackManager.observePlayer(mediaController)
+        Log.d("PlaylistViewModel", "setMediaController")
+    }
 
     private val _urlJobs = mutableMapOf<String, Deferred<String?>>()
     private val _audioStreamURLs = MutableStateFlow<Map<String, String>>(emptyMap())
 
-    private val _playlistId: MutableLiveData<String> = MutableLiveData()
+    private val _selectedPlaylistId: MutableLiveData<String> = MutableLiveData()
 
     private val _playlistData: MutableLiveData<PlaylistLocal> = MutableLiveData()
     val playlistData: LiveData<PlaylistLocal> = _playlistData
 
+    val playingTrackId: LiveData<String> = playbackManager.playingTrackId
 
     fun setPlaylistId(playlistId: String) {
-        _playlistId.value = playlistId
+        _selectedPlaylistId.value = playlistId
         getPlaylist(playlistId)
+        _playButtonStatus.value = getPlayButtonStatus()
     }
+
+    private val _playButtonStatus: MutableLiveData<PlayButtonState> = MutableLiveData()
+    var playButtonStatus: LiveData<PlayButtonState> = _playButtonStatus
 
     // TODO: use the "next" response field to retrieve the next page of results when limit < total results (e.g. liked songs)
     fun getPlaylist(playlistId: String) = viewModelScope.launch {
@@ -156,9 +175,12 @@ class PlaylistViewModel @Inject constructor(
                             .build()
                     )
                     .build()
-                mediaController?.addMediaItem(mediaItem)
-                mediaController?.prepare()
-                mediaController?.play()
+
+                _mediaController?.setMediaItem(mediaItem)
+                _mediaController?.prepare()
+                _mediaController?.play()
+
+                addTracksToQueue(startIndex = _trackList.value!!.indexOf(track) + 1)
 
             } catch (e: Exception) {
                 Log.e("PlaylistViewModel", "Error: $e")
@@ -166,13 +188,52 @@ class PlaylistViewModel @Inject constructor(
         }
     }
 
-    // TODO: handle different cases: player not playing, playing another playlist, playing a single song etc...
-    fun togglePlaylistPlayButton() {}
+    fun togglePlayButton() {
+        if(_mediaController?.isPlaying == true) {
+            if(_selectedPlaylistId.value == playbackManager.playingPlaylistId.value) {
+                _mediaController?.pause()
+                _playButtonStatus.value = PlayButtonState.STOPPED
+            } else {
+                playbackManager.playingPlaylistId = _selectedPlaylistId
+                _playButtonStatus.value = PlayButtonState.PLAYING
+                playCurrentPlaylist()
+            }
+        } else {
+            _playButtonStatus.value = PlayButtonState.PLAYING
+            if(_selectedPlaylistId.value == playbackManager.playingPlaylistId.value) {
+                _mediaController?.play()
+            } else {
+                playbackManager.playingPlaylistId = _selectedPlaylistId
+                playCurrentPlaylist()
+            }
+        }
+    }
+
+    fun getPlayButtonStatus(): PlayButtonState {
+        return if(_mediaController?.isPlaying == true) {
+            if(_selectedPlaylistId.value == playbackManager.playingPlaylistId.value) {
+                PlayButtonState.PLAYING
+            } else {
+                PlayButtonState.STOPPED
+            }
+        } else {
+            PlayButtonState.STOPPED
+        }
+    }
 
     fun playCurrentPlaylist() {
         viewModelScope.launch {
+            _mediaController?.clearMediaItems()
+            addTracksToQueue(startIndex = 0)
+        }
+    }
+
+    // insert all the tracks from startIndex to end into the queue
+    fun addTracksToQueue(startIndex: Int) {
+        viewModelScope.launch {
             val tracks = _trackList.asFlow()
                 .first { !it.isNullOrEmpty() }
+                .subList(startIndex, _trackList.value!!.size)
 
             for(track in tracks) {
                 val audioStreamURL = _audioStreamURLs.asStateFlow()
@@ -191,16 +252,16 @@ class PlaylistViewModel @Inject constructor(
                             .build()
                     )
                     .build()
-                mediaController?.addMediaItem(mediaItem)
-                mediaController?.prepare()
-                mediaController?.play()
+                _mediaController?.addMediaItem(mediaItem)
+                _mediaController?.prepare()
+                _mediaController?.play()
             }
         }
     }
 
     fun toggleShuffle() {
-        val newShuffleModeEnabled = !mediaController?.shuffleModeEnabled!!
-        mediaController?.shuffleModeEnabled = newShuffleModeEnabled
+        val newShuffleModeEnabled = !_mediaController?.shuffleModeEnabled!!
+        _mediaController?.shuffleModeEnabled = newShuffleModeEnabled
     }
 
     override fun onCleared() {
