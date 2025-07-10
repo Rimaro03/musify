@@ -78,8 +78,10 @@ class PlaylistFragment : Fragment() {
             trackAdapter.setCurrentTrackId(it)
         }
         viewModel.playButtonStatus.observe(viewLifecycleOwner) {
-            Log.d("PlaylistFragment", "Status: $it")
             trackAdapter.setPlayButtonState(it)
+        }
+        viewModel.shuffleEnabled.observe(viewLifecycleOwner) {
+            trackAdapter.setShuffleMode(it)
         }
     }
 

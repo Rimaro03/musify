@@ -48,6 +48,11 @@ class TrackAdapter(
         notifyItemChanged(0)
     }
 
+    fun setShuffleMode(enabled: Boolean) {
+        shuffleModeEnabled = enabled
+        notifyItemChanged(0)
+    }
+
     fun View.animateClick() {
         this.animate()
             .scaleX(0.95f)
@@ -102,13 +107,12 @@ class TrackAdapter(
 
             shufflePlaylistBtn.setOnClickListener {
                 onShuffleClicked()
-                shuffleModeEnabled = !shuffleModeEnabled
-                if(shuffleModeEnabled)
-                    shufflePlaylistBtn.imageTintList = ColorStateList
-                        .valueOf(ContextCompat.getColor(itemView.context, R.color.md_theme_tertiaryContainer_mediumContrast))
-                else
-                    shufflePlaylistBtn.imageTintList = null
             }
+            if(shuffleModeEnabled)
+                shufflePlaylistBtn.imageTintList = ColorStateList
+                    .valueOf(ContextCompat.getColor(itemView.context, R.color.md_theme_tertiaryContainer_mediumContrast))
+            else
+                shufflePlaylistBtn.imageTintList = null
 
             playBtn.setOnClickListener {
                 onPlayButtonClicked()

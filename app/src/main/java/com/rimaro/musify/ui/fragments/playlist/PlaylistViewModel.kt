@@ -68,10 +68,14 @@ class PlaylistViewModel @Inject constructor(
         _selectedPlaylistId.value = playlistId
         getPlaylist(playlistId)
         _playButtonStatus.value = getPlayButtonStatus()
+        _shuffleEnabled.value = _mediaController?.shuffleModeEnabled == true
     }
 
     private val _playButtonStatus: MutableLiveData<PlayButtonState> = MutableLiveData()
     var playButtonStatus: LiveData<PlayButtonState> = _playButtonStatus
+
+    private val _shuffleEnabled: MutableLiveData<Boolean> = MutableLiveData()
+    val shuffleEnabled: LiveData<Boolean> = _shuffleEnabled
 
     // TODO: use the "next" response field to retrieve the next page of results when limit < total results (e.g. liked songs)
     fun getPlaylist(playlistId: String) = viewModelScope.launch {
@@ -261,6 +265,7 @@ class PlaylistViewModel @Inject constructor(
 
     fun toggleShuffle() {
         val newShuffleModeEnabled = !_mediaController?.shuffleModeEnabled!!
+        _shuffleEnabled.value = newShuffleModeEnabled
         _mediaController?.shuffleModeEnabled = newShuffleModeEnabled
     }
 
