@@ -32,11 +32,21 @@
     <fragment
         android:id="@+id/playlistFragment"
         android:name="com.rimaro.musify.ui.fragments.playlist.PlaylistFragment"
-        android:label=""
+        android:label="@string/title_library"
         tools:layout="@layout/fragment_playlist" >
         <argument
             android:name="playlistId"
             app:argType="string" />
     </fragment>
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.rimaro.musify.ui.fragments.search.SearchFragment"
+        android:label="Search"
+        tools:layout="@layout/fragment_search" />
+    <fragment
+        android:id="@+id/libraryFragment"
+        android:name="com.rimaro.musify.ui.fragments.library.LibraryFragment"
+        android:label="Library"
+        tools:layout="@layout/fragment_library" />
 
 </navigation>

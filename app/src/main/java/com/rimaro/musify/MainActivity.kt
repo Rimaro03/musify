@@ -10,6 +10,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.core.content.edit
 import androidx.navigation.NavOptions
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.color.DynamicColors
 import com.rimaro.musify.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,7 +35,9 @@ class MainActivity : AppCompatActivity() {
                 R.id.homeFragment
             )
         )
+        val navView = binding.navView
         setupActionBarWithNavController(navController, appBarConfiguration)
+        navView.setupWithNavController(navController)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

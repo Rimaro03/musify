@@ -248,6 +248,7 @@ class PlaylistViewModel @Inject constructor(
             if (_mediaController?.mediaItemCount!! > 0)
                 _mediaController?.removeMediaItems(1, _mediaController?.mediaItemCount!!)
             addTracksToQueue()
+            _mediaController?.prepare()
         }
         _mediaController?.shuffleModeEnabled = newShuffleModeEnabled
     }
