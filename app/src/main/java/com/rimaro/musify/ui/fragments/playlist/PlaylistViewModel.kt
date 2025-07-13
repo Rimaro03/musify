@@ -162,6 +162,7 @@ class PlaylistViewModel @Inject constructor(
     // TODO: same issue here with streaming.let
     @OptIn(ExperimentalCoroutinesApi::class)
     fun playTrack(track: TrackObject){
+        playbackManager.setPlayingPlaylistID(_selectedPlaylistId.value!!)
         _mediaController?.clearMediaItems()
         addTracksToQueue(startIndex = _trackList.value!!.indexOf(track))
         _mediaController?.prepare()
@@ -227,7 +228,9 @@ class PlaylistViewModel @Inject constructor(
 
     fun getPlayButtonStatus(): PlayButtonState {
         return if(_mediaController?.isPlaying == true) {
+            Log.d("PlaylistViewModel", "Current playlist: ${_selectedPlaylistId.value}, selected: ${playbackManager.playingPlaylistId.value}")
             if(_selectedPlaylistId.value == playbackManager.playingPlaylistId.value) {
+                Log.d("PlaylistViewModel", "Playing this playlist")
                 PlayButtonState.PLAYING
             } else {
                 PlayButtonState.STOPPED

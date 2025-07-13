@@ -13,14 +13,18 @@ class PlaybackManager {
     private val _playingPlaylistId = MutableLiveData<String>()
     var playingPlaylistId: LiveData<String> = _playingPlaylistId
 
-    fun observePlayer(controller: MediaController, onPlayingStateChange: () -> Unit) {
+    fun setPlayingPlaylistID(newId: String) {
+        _playingPlaylistId.value = newId
+    }
+
+    fun observePlayer(controller: MediaController, updatePlayButtonStatus: () -> Unit) {
         controller.addListener(object : Player.Listener {
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 _playingTrackId.value = mediaItem?.mediaId
             }
 
-            override fun onIsPlayingChanged(isPlaying: Boolean) {
-                onPlayingStateChange()
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                updatePlayButtonStatus()
             }
         })
     }
