@@ -11,6 +11,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface SpotifyApiService {
     @GET("me")
@@ -32,6 +33,12 @@ interface SpotifyApiService {
     suspend fun getUserPlaylists(
         @Header("Authorization") authorization: String,
     ): GenericPlaylistsResponse<SimplifiedPlaylistObject>
+
+    @GET("me/tracks/contains")
+    suspend fun checkUserFollowTracks(
+        @Header("Authorization") authorization: String,
+        @Query("ids") trackIds: String
+    ): List<Boolean>
 
     @GET("playlists/{playlist_id}")
     suspend fun getPlaylist(

@@ -72,6 +72,9 @@ class PlaylistViewModel @Inject constructor(
     private val _playlistFollowed: MutableLiveData<Boolean> = MutableLiveData(false)
     val playlistFollowed: LiveData<Boolean> = _playlistFollowed
 
+    private val _tracksFollowed : MutableLiveData<List<Boolean>> = MutableLiveData()
+    val tracksFollowed: LiveData<List<Boolean>> = _tracksFollowed
+
     fun connectToSession(sessionToken: SessionToken, playlistId: String) {
         val controllerFuture = MediaController.Builder(
             context,
@@ -147,6 +150,7 @@ class PlaylistViewModel @Inject constructor(
         }
         // immediately display songs
         _trackList.value = tracks
+        getFollowedTrack(tracks)
 
         // keeps child jobs cancellable with the parent
         coroutineScope {
@@ -313,6 +317,21 @@ class PlaylistViewModel @Inject constructor(
         return withContext(Dispatchers.IO) {
             val token = spotifyTokenManager.retrieveAccessToken()
             spotifyRepository.checkUserFollowsPlaylist("Bearer $token", _selectedPlaylistId.value!!)[0]
+        }
+    }
+
+    private fun getFollowedTrack(tracks: List<TrackObject>) {
+        if(_selectedPlaylistId.value == "-1") {
+            _tracksFollowed.value = List(trackList.value!!.size) { true }
+        } else {
+            viewModelScope.launch {
+                val trackIds = tracks.joinToString(",") { it.id }
+                val followedTracks = withContext(Dispatchers.IO) {
+                    val token = spotifyTokenManager.retrieveAccessToken()
+                    spotifyRepository.checkUserFollowsTracks("Bearer $token", trackIds)
+                }
+                _tracksFollowed.value = followedTracks
+            }
         }
     }
 }

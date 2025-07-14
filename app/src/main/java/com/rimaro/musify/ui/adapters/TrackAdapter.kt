@@ -32,6 +32,7 @@ class TrackAdapter(
     private var shuffleModeEnabled = false
     private var currentTrackId: String? = null
     private var followingPlaylist = false
+    private var followedTracks: List<Boolean> = emptyList()
 
     fun setPlaylistData(data: PlaylistLocal) {
         _playlistData = data
@@ -56,6 +57,11 @@ class TrackAdapter(
     fun setPlaylistFollowed(followed: Boolean) {
         followingPlaylist = followed
         notifyItemChanged(0)
+    }
+
+    fun setFollowedTracks(followed: List<Boolean>) {
+        followedTracks = followed
+        notifyItemRangeChanged(1, currentList.size)
     }
 
     fun View.animateClick() {
@@ -151,6 +157,7 @@ class TrackAdapter(
         private val trackImg = itemView.findViewById<ImageView>(R.id.track_icon)
         private val trackArtists = itemView.findViewById<TextView>(R.id.track_artists)
         private val clickToPlay = itemView.findViewById<LinearLayout>(R.id.click_to_play_zone)
+        private val followTrackBtn = itemView.findViewById<ImageButton>(R.id.follow_track_btn)
 
         fun bind(track: TrackObject, onTrackClicked: (TrackObject) -> Unit) {
             trackName.text = track.name
@@ -159,15 +166,29 @@ class TrackAdapter(
             } else {
                 trackName.setTextColor(-1)
             }
-            trackArtists.text = track.artists.joinToString(", ") { it.name }
+
             Glide.with(itemView.context)
                 .load(track.album.images[0].url)
                 .placeholder(androidx.media3.session.R.drawable.media3_icon_album)
                 .error(androidx.media3.session.R.drawable.media3_icon_album)
                 .transform(RoundedCorners(15))
                 .into(trackImg)
+
+            trackArtists.text = track.artists.joinToString(", ") { it.name }
+
             clickToPlay.setOnClickListener {
                 onTrackClicked(track)
+            }
+
+            if(followedTracks.getOrNull(absoluteAdapterPosition - 1) == true) {
+                followTrackBtn.setImageResource(R.drawable.check_circle_24px)
+                followTrackBtn.imageTintList = ColorStateList
+                    .valueOf(
+                        ContextCompat.getColor(
+                            itemView.context,
+                            R.color.md_theme_tertiaryContainer_mediumContrast
+                        )
+                    )
             }
         }
     }

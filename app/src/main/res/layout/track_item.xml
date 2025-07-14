@@ -62,11 +62,21 @@
         </LinearLayout>
 
         <ImageButton
+            android:id="@+id/follow_track_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/add_circle_24px"
             android:layout_gravity="center_vertical"
             android:layout_margin="10dp"
+            android:contentDescription="@string/add_fav"
+            style="@style/icon_button_style"/>
+
+        <ImageButton
+            android:id="@+id/track_actions_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="10dp"
+            android:src="@drawable/more_vert_24px"
             android:contentDescription="@string/add_fav"
             style="@style/icon_button_style"/>
 

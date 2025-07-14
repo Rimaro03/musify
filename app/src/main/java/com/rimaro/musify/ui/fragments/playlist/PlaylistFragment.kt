@@ -12,7 +12,6 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.rimaro.musify.databinding.FragmentPlaylistBinding
-import com.rimaro.musify.data.remote.model.TrackObject
 import com.rimaro.musify.service.PlaybackService
 import com.rimaro.musify.ui.adapters.TrackAdapter
 import com.rimaro.musify.utils.TrackSwipeCallback
@@ -57,14 +56,14 @@ class PlaylistFragment : Fragment() {
         val itemTouchHelper = ItemTouchHelper(TrackSwipeCallback(::handleTrackSwipe, requireContext()))
         itemTouchHelper.attachToRecyclerView(trackRecyclerView)
 
-        fun onTrackClicked(track: TrackObject) = viewModel.playTrack(track)
         val trackAdapter = TrackAdapter(
-            ::onTrackClicked,
+            onTrackClicked = { viewModel.playTrack(it) },
             onAddFavClicked = { viewModel.toggleFollowPlaylist() },
             onShuffleClicked = { viewModel.toggleShuffle() },
             onPlayButtonClicked = { viewModel.togglePlayButton() }
         )
         trackRecyclerView.adapter = trackAdapter
+
         viewModel.trackList.observe(viewLifecycleOwner) {
             trackAdapter.submitList(it)
         }
@@ -83,6 +82,10 @@ class PlaylistFragment : Fragment() {
         viewModel.playlistFollowed.observe(viewLifecycleOwner) {
             trackAdapter.setPlaylistFollowed(it)
         }
+        viewModel.tracksFollowed.observe(viewLifecycleOwner) {
+            trackAdapter.setFollowedTracks(it)
+        }
+
     }
 
     override fun onDestroyView() {
