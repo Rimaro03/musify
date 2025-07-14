@@ -196,15 +196,6 @@ class TrackAdapter(
     override fun getItemViewType(position: Int): Int {
         return if (position == 0) VIEW_TYPE_HEADER else VIEW_TYPE_ITEM
     }
-
-    fun getTrackIndexById(id: String): Int {
-        for (i in 0 until currentList.size) {
-            if (currentList[i].id == id) {
-                return i + 1
-            }
-        }
-        return -1
-    }
 }
 
 class DiffCallback: DiffUtil.ItemCallback<TrackObject>() {

@@ -10,12 +10,14 @@ import androidx.fragment.app.viewModels
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.common.util.concurrent.MoreExecutors
 import com.rimaro.musify.databinding.FragmentPlaylistBinding
 import com.rimaro.musify.data.remote.model.TrackObject
 import com.rimaro.musify.service.PlaybackService
 import com.rimaro.musify.ui.adapters.TrackAdapter
+import com.rimaro.musify.utils.TrackSwipeCallback
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.getValue
 
@@ -58,6 +60,16 @@ class PlaylistFragment : Fragment() {
 
         val trackRecyclerView = binding.trackRv
         trackRecyclerView.layoutManager = LinearLayoutManager(view.context)
+
+        // handles track swipe gesture
+        fun handleTrackSwipe(position: Int) {
+            trackRecyclerView.post {
+                viewModel.enqueueTrack(position - 1)
+            }
+        }
+
+        val itemTouchHelper = ItemTouchHelper(TrackSwipeCallback(::handleTrackSwipe, requireContext()))
+        itemTouchHelper.attachToRecyclerView(trackRecyclerView)
 
         fun onTrackClicked(track: TrackObject) = viewModel.playTrack(track)
         val trackAdapter = TrackAdapter(

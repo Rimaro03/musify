@@ -226,11 +226,33 @@ class PlaylistViewModel @Inject constructor(
         }
     }
 
+    fun enqueueTrack(position: Int) {
+        val track = _trackList.value!![position]
+        Log.d("PlaylistViewModel", "Enqueuing track: ${track.name}")
+        viewModelScope.launch {
+            val audioStreamURL = _audioStreamURLs.asStateFlow()
+                .filter { it.containsKey(track.id) }
+                .first()[track.id]
+
+            val artists = track.artists.joinToString(", ") { it.name }
+            val mediaItem = MediaItem.Builder()
+                .setMediaId(track.id)
+                .setUri(audioStreamURL)
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setArtist(artists)
+                        .setTitle(track.name)
+                        .setArtworkUri(track.album.images.first().url.toUri())
+                        .build()
+                )
+                .build()
+            _mediaController?.addMediaItem(mediaItem)
+        }
+    }
+
     fun getPlayButtonStatus(): PlayButtonState {
         return if(_mediaController?.isPlaying == true) {
-            Log.d("PlaylistViewModel", "Current playlist: ${_selectedPlaylistId.value}, selected: ${playbackManager.playingPlaylistId.value}")
             if(_selectedPlaylistId.value == playbackManager.playingPlaylistId.value) {
-                Log.d("PlaylistViewModel", "Playing this playlist")
                 PlayButtonState.PLAYING
             } else {
                 PlayButtonState.STOPPED
