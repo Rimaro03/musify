@@ -1,6 +1,8 @@
 package com.rimaro.musify.ui.fragments.playlist
 
+import android.content.Context
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
 import com.rimaro.musify.data.remote.model.TrackObject
 import com.rimaro.musify.domain.model.PlaylistLocal
 import com.rimaro.musify.domain.model.UserLocal
@@ -17,6 +20,7 @@ import com.rimaro.musify.domain.repository.SpotifyRepository
 import com.rimaro.musify.utils.PlaybackManager
 import com.rimaro.musify.utils.SpotifyTokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,23 +40,19 @@ import kotlin.collections.first
 class PlaylistViewModel @Inject constructor(
     private val spotifyRepository: SpotifyRepository,
     private val spotifyTokenManager: SpotifyTokenManager,
-    private val playbackManager: PlaybackManager
+    private val playbackManager: PlaybackManager,
+    @ApplicationContext private val context: Context
 ): ViewModel() {
     enum class PlayButtonState {
         PLAYING,
         STOPPED
     }
-
+    
+    private lateinit var _mediaController: MediaController
+    
     private val _trackList: MutableLiveData<List<TrackObject>> = MutableLiveData()
     val trackList: LiveData<List<TrackObject>> = _trackList
-
-    private var _mediaController: MediaController? = null
-
-    fun setMediaController(mediaController: MediaController) {
-        _mediaController = mediaController
-        playbackManager.observePlayer(mediaController, ::updatePlayButtonStatus)
-    }
-
+    
     private val _urlJobs = mutableMapOf<String, Deferred<String?>>()
     private val _audioStreamURLs = MutableStateFlow<Map<String, String>>(emptyMap())
 
@@ -72,16 +72,29 @@ class PlaylistViewModel @Inject constructor(
     private val _playlistFollowed: MutableLiveData<Boolean> = MutableLiveData(false)
     val playlistFollowed: LiveData<Boolean> = _playlistFollowed
 
+    fun connectToSession(sessionToken: SessionToken, playlistId: String) {
+        val controllerFuture = MediaController.Builder(
+            context,
+            sessionToken
+        ).buildAsync()
+
+        controllerFuture.addListener (
+            {
+                val controller = controllerFuture.get()
+                controller.addListener(playbackManager.getPlaybackListener(::updatePlayButtonStatus))
+                _mediaController = controller
+                setPlaylistId(playlistId)
+            },
+            ContextCompat.getMainExecutor(context)
+        )
+    }
+
     fun setPlaylistId(playlistId: String) {
         _selectedPlaylistId.value = playlistId
         getPlaylist(playlistId)
-        initPlaylist()
-    }
-
-    private fun initPlaylist() {
         viewModelScope.launch {
             _playButtonStatus.value = getPlayButtonStatus()
-            _shuffleEnabled.value = _mediaController?.shuffleModeEnabled == true
+            _shuffleEnabled.value = _mediaController.shuffleModeEnabled == true
             _playlistFollowed.value = checkIfPlaylistIsFollowed()
         }
     }
@@ -132,7 +145,7 @@ class PlaylistViewModel @Inject constructor(
                 .filter { it.track != null }
                 .map { it.track!! }
         }
-        // immediatly display songs
+        // immediately display songs
         _trackList.value = tracks
 
         // keeps child jobs cancellable with the parent
@@ -163,16 +176,16 @@ class PlaylistViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun playTrack(track: TrackObject){
         playbackManager.setPlayingPlaylistID(_selectedPlaylistId.value!!)
-        _mediaController?.clearMediaItems()
+        _mediaController.clearMediaItems()
         addTracksToQueue(startIndex = _trackList.value!!.indexOf(track))
-        _mediaController?.prepare()
-        _mediaController?.play()
+        _mediaController.prepare()
+        _mediaController.play()
     }
 
     fun togglePlayButton() {
-        if(_mediaController?.isPlaying == true) {
+        if(_mediaController.isPlaying == true) {
             if(_selectedPlaylistId.value == playbackManager.playingPlaylistId.value) {
-                _mediaController?.pause()
+                _mediaController.pause()
                 _playButtonStatus.value = PlayButtonState.STOPPED
             } else {
                 playbackManager.playingPlaylistId = _selectedPlaylistId
@@ -182,7 +195,7 @@ class PlaylistViewModel @Inject constructor(
         } else {
             _playButtonStatus.value = PlayButtonState.PLAYING
             if(_selectedPlaylistId.value == playbackManager.playingPlaylistId.value) {
-                _mediaController?.play()
+                _mediaController.play()
             } else {
                 playbackManager.playingPlaylistId = _selectedPlaylistId
                 playCurrentPlaylist()
@@ -191,10 +204,10 @@ class PlaylistViewModel @Inject constructor(
     }
 
     fun playCurrentPlaylist() {
-        _mediaController?.clearMediaItems()
+        _mediaController.clearMediaItems()
         addTracksToQueue()
-        _mediaController?.prepare()
-        _mediaController?.play()
+        _mediaController.prepare()
+        _mediaController.play()
     }
 
     // insert all the tracks from startIndex to end into the queue
@@ -221,7 +234,7 @@ class PlaylistViewModel @Inject constructor(
                             .build()
                     )
                     .build()
-                _mediaController?.addMediaItem(mediaItem)
+                _mediaController.addMediaItem(mediaItem)
             }
         }
     }
@@ -246,12 +259,12 @@ class PlaylistViewModel @Inject constructor(
                         .build()
                 )
                 .build()
-            _mediaController?.addMediaItem(mediaItem)
+            _mediaController.addMediaItem(mediaItem)
         }
     }
 
     fun getPlayButtonStatus(): PlayButtonState {
-        return if(_mediaController?.isPlaying == true) {
+        return if(_mediaController.isPlaying == true) {
             if(_selectedPlaylistId.value == playbackManager.playingPlaylistId.value) {
                 PlayButtonState.PLAYING
             } else {
@@ -267,15 +280,15 @@ class PlaylistViewModel @Inject constructor(
     }
 
     fun toggleShuffle() {
-        val newShuffleModeEnabled = !_mediaController?.shuffleModeEnabled!!
+        val newShuffleModeEnabled = !_mediaController.shuffleModeEnabled
         _shuffleEnabled.value = newShuffleModeEnabled
         if(newShuffleModeEnabled) {
-            if (_mediaController?.mediaItemCount!! > 0)
-                _mediaController?.removeMediaItems(1, _mediaController?.mediaItemCount!!)
+            if (_mediaController.mediaItemCount > 0)
+                _mediaController.removeMediaItems(1, _mediaController.mediaItemCount)
             addTracksToQueue()
-            _mediaController?.prepare()
+            _mediaController.prepare()
         }
-        _mediaController?.shuffleModeEnabled = newShuffleModeEnabled
+        _mediaController.shuffleModeEnabled = newShuffleModeEnabled
     }
 
     // TODO: need a way to advice the home pinned playlist if a new playlist is unfollowed/followed

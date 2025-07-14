@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
-import androidx.media3.session.MediaController
 
 class PlaybackManager {
     private val _playingTrackId = MutableLiveData<String>()
@@ -17,15 +16,17 @@ class PlaybackManager {
         _playingPlaylistId.value = newId
     }
 
-    fun observePlayer(controller: MediaController, updatePlayButtonStatus: () -> Unit) {
-        controller.addListener(object : Player.Listener {
-            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                _playingTrackId.value = mediaItem?.mediaId
-            }
+    fun getPlaybackListener( updatePlayButtonStatus: () -> Unit): Player.Listener {
+        return PlayerListener(updatePlayButtonStatus)
+    }
 
-            override fun onPlaybackStateChanged(playbackState: Int) {
-                updatePlayButtonStatus()
-            }
-        })
+    inner class PlayerListener( private val updatePlayButtonStatus: () -> Unit ) : Player.Listener {
+        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+            _playingTrackId.value = mediaItem?.mediaId
+        }
+
+        override fun onPlaybackStateChanged(playbackState: Int) {
+            updatePlayButtonStatus()
+        }
     }
 }
