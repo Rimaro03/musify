@@ -72,4 +72,11 @@ class SpotifyRepository @Inject constructor(
 
     suspend fun checkUserFollowsTracks(authorization: String, trackIds: String) =
         spotifyApiService.checkUserFollowTracks(authorization = authorization, trackIds = trackIds)
+
+    suspend fun followTrack(authorization: String, trackIds: String) =
+        spotifyApiService.followTrack(authorization = authorization, trackIds = trackIds)
+
+    suspend fun unfollowTrack(authorization: String, trackIds: String) =
+        spotifyApiService.unfollowTrack(authorization = authorization, trackIds = trackIds)
+
 }

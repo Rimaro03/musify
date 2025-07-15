@@ -52,7 +52,7 @@ class AuthFragment : Fragment() {
                 AuthorizationResponse.Type.CODE,
                 REDIRECT_URI
             )
-            builder.setScopes(arrayOf("user-read-private", "user-library-read", "user-read-email",
+            builder.setScopes(arrayOf("user-read-private", "user-library-read", "user-read-email", "user-library-modify",
                 "playlist-read-private", "playlist-read-collaborative", "playlist-modify-public", "playlist-modify-private",
                 "user-follow-read", "user-top-read", "user-read-recently-played"))
             val request = builder.build()

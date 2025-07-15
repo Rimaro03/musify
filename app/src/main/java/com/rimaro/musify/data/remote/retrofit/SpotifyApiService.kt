@@ -40,6 +40,18 @@ interface SpotifyApiService {
         @Query("ids") trackIds: String
     ): List<Boolean>
 
+    @PUT("me/tracks")
+    suspend fun followTrack(
+        @Header("Authorization") authorization: String,
+        @Query("ids") trackIds: String
+    )
+
+    @DELETE("me/tracks")
+    suspend fun unfollowTrack(
+        @Header("Authorization") authorization: String,
+        @Query("ids") trackIds: String
+    )
+
     @GET("playlists/{playlist_id}")
     suspend fun getPlaylist(
         @Header("Authorization") authorization: String,

@@ -58,12 +58,14 @@ class PlaylistFragment : Fragment() {
 
         val trackAdapter = TrackAdapter(
             onTrackClicked = { viewModel.playTrack(it) },
+            onTrackFavClicked = { viewModel.toggleFollowTrack(it) },
             onAddFavClicked = { viewModel.toggleFollowPlaylist() },
             onShuffleClicked = { viewModel.toggleShuffle() },
             onPlayButtonClicked = { viewModel.togglePlayButton() }
         )
         trackRecyclerView.adapter = trackAdapter
 
+        // TODO: before loading playlist UI, wait for all these LiveData to fetch (short loading screen)
         viewModel.trackList.observe(viewLifecycleOwner) {
             trackAdapter.submitList(it)
         }

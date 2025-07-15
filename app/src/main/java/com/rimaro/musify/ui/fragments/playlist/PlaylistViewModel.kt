@@ -33,6 +33,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.schabi.newpipe.extractor.timeago.patterns.fa
+import retrofit2.HttpException
 import javax.inject.Inject
 import kotlin.collections.first
 
@@ -72,8 +74,8 @@ class PlaylistViewModel @Inject constructor(
     private val _playlistFollowed: MutableLiveData<Boolean> = MutableLiveData(false)
     val playlistFollowed: LiveData<Boolean> = _playlistFollowed
 
-    private val _tracksFollowed : MutableLiveData<List<Boolean>> = MutableLiveData()
-    val tracksFollowed: LiveData<List<Boolean>> = _tracksFollowed
+    private val _tracksFollowed : MutableLiveData<MutableMap<String, Boolean>> = MutableLiveData()
+    val tracksFollowed: LiveData<MutableMap<String, Boolean>> = _tracksFollowed
 
     fun connectToSession(sessionToken: SessionToken, playlistId: String) {
         val controllerFuture = MediaController.Builder(
@@ -320,17 +322,51 @@ class PlaylistViewModel @Inject constructor(
         }
     }
 
+    fun toggleFollowTrack(track: TrackObject) {
+        val newIsTrackFollowed = !(_tracksFollowed.value!![track.id])!!
+        _tracksFollowed.value = _tracksFollowed.value!!.apply {
+            this[track.id] = newIsTrackFollowed
+        }
+
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val token = spotifyTokenManager.retrieveAccessToken()
+                if (newIsTrackFollowed == true) {
+                    try{
+                        spotifyRepository.followTrack("Bearer $token", track.id)
+                    } catch(e: HttpException) {
+                        Log.d("PlaylistViewModel", "Error following track: ${track.name}: ${e.message}")
+                    }
+                } else {
+                    spotifyRepository.unfollowTrack("Bearer $token", track.id)
+                }
+            }
+        }
+    }
+
+    // TODO: when chunking the track list, maybe it's better to run the api call async for every chunk
     private fun getFollowedTrack(tracks: List<TrackObject>) {
+        val followed = mutableMapOf<String, Boolean>()
         if(_selectedPlaylistId.value == "-1") {
-            _tracksFollowed.value = List(trackList.value!!.size) { true }
+            for(track in tracks) {
+                followed[track.id] = true
+            }
+            _tracksFollowed.value = followed
         } else {
             viewModelScope.launch {
-                val trackIds = tracks.joinToString(",") { it.id }
-                val followedTracks = withContext(Dispatchers.IO) {
+                _tracksFollowed.value = withContext(Dispatchers.IO) {
                     val token = spotifyTokenManager.retrieveAccessToken()
-                    spotifyRepository.checkUserFollowsTracks("Bearer $token", trackIds)
+                    val dividedTracks = tracks.chunked(50)
+                    for(currTracks in dividedTracks){
+                        val ids = currTracks.joinToString(",") { it.id }
+                        val trackFollowed =
+                            spotifyRepository.checkUserFollowsTracks("Bearer $token", ids)
+                        for ((index, track) in currTracks.withIndex()) {
+                            followed[track.id] = trackFollowed[index]
+                        }
+                    }
+                    followed
                 }
-                _tracksFollowed.value = followedTracks
             }
         }
     }

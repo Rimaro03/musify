@@ -23,6 +23,7 @@ import com.rimaro.musify.ui.fragments.playlist.PlaylistViewModel
 //TODO: future idea, divide the header item in playlist metadata and action buttons
 class TrackAdapter(
     val onTrackClicked: (TrackObject) -> Unit,
+    val onTrackFavClicked: (TrackObject) -> Unit,
     val onAddFavClicked: () -> Unit,
     val onShuffleClicked: () -> Unit,
     val onPlayButtonClicked: () -> Unit
@@ -32,7 +33,7 @@ class TrackAdapter(
     private var shuffleModeEnabled = false
     private var currentTrackId: String? = null
     private var followingPlaylist = false
-    private var followedTracks: List<Boolean> = emptyList()
+    private var followedTracks: Map<String, Boolean> = mapOf()
 
     fun setPlaylistData(data: PlaylistLocal) {
         _playlistData = data
@@ -59,9 +60,9 @@ class TrackAdapter(
         notifyItemChanged(0)
     }
 
-    fun setFollowedTracks(followed: List<Boolean>) {
+    fun setFollowedTracks(followed: Map<String, Boolean>) {
         followedTracks = followed
-        notifyItemRangeChanged(1, currentList.size)
+        notifyItemRangeChanged(0, currentList.size)
     }
 
     fun View.animateClick() {
@@ -96,9 +97,7 @@ class TrackAdapter(
         val shufflePlaylistBtn = itemView.findViewById<ImageButton>(R.id.shuffle_playlist_btn)
         val playBtn = itemView.findViewById<ShapeableImageView>(R.id.play_track_bnt)
 
-        fun bind(onAddFavClicked: () -> Unit,
-                 onShuffleClicked: () -> Unit,
-                 onPlayButtonClicked: () -> Unit) {
+        fun bind() {
             playlistAuthor.text = _playlistData?.owner?.displayName ?: "Owner not available"
             playlistTitle.text = _playlistData?.name ?: "Playlist name not available"
             Glide.with(itemView.context)
@@ -159,7 +158,7 @@ class TrackAdapter(
         private val clickToPlay = itemView.findViewById<LinearLayout>(R.id.click_to_play_zone)
         private val followTrackBtn = itemView.findViewById<ImageButton>(R.id.follow_track_btn)
 
-        fun bind(track: TrackObject, onTrackClicked: (TrackObject) -> Unit) {
+        fun bind(track: TrackObject) {
             trackName.text = track.name
             if(track.id == currentTrackId) {
                 trackName.setTextColor(ContextCompat.getColor(itemView.context, R.color.md_theme_tertiaryContainer_mediumContrast))
@@ -180,7 +179,10 @@ class TrackAdapter(
                 onTrackClicked(track)
             }
 
-            if(followedTracks.getOrNull(absoluteAdapterPosition - 1) == true) {
+            followTrackBtn.setOnClickListener {
+                onTrackFavClicked(track)
+            }
+            if(followedTracks[track.id] == true) {
                 followTrackBtn.setImageResource(R.drawable.check_circle_24px)
                 followTrackBtn.imageTintList = ColorStateList
                     .valueOf(
@@ -189,6 +191,9 @@ class TrackAdapter(
                             R.color.md_theme_tertiaryContainer_mediumContrast
                         )
                     )
+            } else {
+                followTrackBtn.setImageResource(R.drawable.add_circle_24px)
+                followTrackBtn.imageTintList = null
             }
         }
     }
@@ -206,9 +211,9 @@ class TrackAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if(holder is HeaderViewHolder) {
-            holder.bind(onAddFavClicked, onShuffleClicked, onPlayButtonClicked)
+            holder.bind()
         } else if(holder is TrackViewHolder){
-            holder.bind(getItem(position - 1), onTrackClicked)
+            holder.bind(getItem(position - 1))
         }
     }
 
