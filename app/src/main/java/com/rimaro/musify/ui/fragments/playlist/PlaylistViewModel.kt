@@ -11,6 +11,7 @@ import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
+import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.rimaro.musify.data.remote.model.TrackObject
@@ -33,7 +34,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.schabi.newpipe.extractor.timeago.patterns.fa
 import retrofit2.HttpException
 import javax.inject.Inject
 import kotlin.collections.first
@@ -45,11 +45,7 @@ class PlaylistViewModel @Inject constructor(
     private val playbackManager: PlaybackManager,
     @ApplicationContext private val context: Context
 ): ViewModel() {
-    enum class PlayButtonState {
-        PLAYING,
-        STOPPED
-    }
-    
+
     private lateinit var _mediaController: MediaController
     
     private val _trackList: MutableLiveData<List<TrackObject>> = MutableLiveData()
@@ -65,8 +61,8 @@ class PlaylistViewModel @Inject constructor(
 
     val playingTrackId: LiveData<String> = playbackManager.playingTrackId
 
-    private val _playButtonStatus: MutableLiveData<PlayButtonState> = MutableLiveData()
-    var playButtonStatus: LiveData<PlayButtonState> = _playButtonStatus
+    private val _playButtonState: MutableLiveData<@Player.State Int> = MutableLiveData()
+    var playButtonState: LiveData<@Player.State Int> = _playButtonState
 
     private val _shuffleEnabled: MutableLiveData<Boolean> = MutableLiveData()
     val shuffleEnabled: LiveData<Boolean> = _shuffleEnabled
@@ -86,7 +82,7 @@ class PlaylistViewModel @Inject constructor(
         controllerFuture.addListener (
             {
                 val controller = controllerFuture.get()
-                controller.addListener(playbackManager.getPlaybackListener(::updatePlayButtonStatus))
+                controller.addListener(playbackManager.getPlaybackListener(::callbackIsPlayingChange, ::callbackPlayerStateChange))
                 _mediaController = controller
                 setPlaylistId(playlistId)
             },
@@ -98,7 +94,7 @@ class PlaylistViewModel @Inject constructor(
         _selectedPlaylistId.value = playlistId
         getPlaylist(playlistId)
         viewModelScope.launch {
-            _playButtonStatus.value = getPlayButtonStatus()
+             _playButtonState.value = updatePlayButtonState(_mediaController.isPlaying, _mediaController.playbackState)
             _shuffleEnabled.value = _mediaController.shuffleModeEnabled == true
             _playlistFollowed.value = checkIfPlaylistIsFollowed()
         }
@@ -178,40 +174,13 @@ class PlaylistViewModel @Inject constructor(
         }
     }
 
+    // ---------- TRACK FUNCTIONS ---------------
     // TODO: same issue here with streaming.let
     @OptIn(ExperimentalCoroutinesApi::class)
     fun playTrack(track: TrackObject){
         playbackManager.setPlayingPlaylistID(_selectedPlaylistId.value!!)
         _mediaController.clearMediaItems()
         addTracksToQueue(startIndex = _trackList.value!!.indexOf(track))
-        _mediaController.prepare()
-        _mediaController.play()
-    }
-
-    fun togglePlayButton() {
-        if(_mediaController.isPlaying == true) {
-            if(_selectedPlaylistId.value == playbackManager.playingPlaylistId.value) {
-                _mediaController.pause()
-                _playButtonStatus.value = PlayButtonState.STOPPED
-            } else {
-                playbackManager.playingPlaylistId = _selectedPlaylistId
-                _playButtonStatus.value = PlayButtonState.PLAYING
-                playCurrentPlaylist()
-            }
-        } else {
-            _playButtonStatus.value = PlayButtonState.PLAYING
-            if(_selectedPlaylistId.value == playbackManager.playingPlaylistId.value) {
-                _mediaController.play()
-            } else {
-                playbackManager.playingPlaylistId = _selectedPlaylistId
-                playCurrentPlaylist()
-            }
-        }
-    }
-
-    fun playCurrentPlaylist() {
-        _mediaController.clearMediaItems()
-        addTracksToQueue()
         _mediaController.prepare()
         _mediaController.play()
     }
@@ -269,20 +238,48 @@ class PlaylistViewModel @Inject constructor(
         }
     }
 
-    fun getPlayButtonStatus(): PlayButtonState {
-        return if(_mediaController.isPlaying == true) {
-            if(_selectedPlaylistId.value == playbackManager.playingPlaylistId.value) {
-                PlayButtonState.PLAYING
-            } else {
-                PlayButtonState.STOPPED
-            }
-        } else {
-            PlayButtonState.STOPPED
-        }
+    fun playCurrentPlaylist() {
+        _mediaController.clearMediaItems()
+        addTracksToQueue()
+        _mediaController.prepare()
+        _mediaController.play()
     }
 
-    fun updatePlayButtonStatus() {
-        _playButtonStatus.value = getPlayButtonStatus()
+    // ---------- PLAYLIST BUTTONS FUNCTIONS -----------------
+    fun callbackIsPlayingChange(isPlaying: Boolean) {
+        _playButtonState.value = updatePlayButtonState(isPlaying, _mediaController.playbackState)
+    }
+
+    // TODO: add buffering state, add loading icon on player button
+    fun callbackPlayerStateChange(playerState: @Player.State Int) {
+        _playButtonState.value = updatePlayButtonState(_mediaController.isPlaying, playerState)
+    }
+
+    fun updatePlayButtonState(playerIsPlaying: Boolean,  playerState: @Player.State Int): @Player.State Int {
+        if(playerIsPlaying == true && (_selectedPlaylistId.value == playbackManager.playingPlaylistId.value) ) {
+            return Player.STATE_READY
+        } else if(playerState == Player.STATE_BUFFERING) {
+            return Player.STATE_BUFFERING
+        }
+        return Player.STATE_IDLE
+    }
+
+    fun togglePlayButton() {
+        if(_mediaController.isPlaying == true) {
+            if(_selectedPlaylistId.value == playbackManager.playingPlaylistId.value) {
+                _mediaController.pause()
+            } else {
+                playbackManager.playingPlaylistId = _selectedPlaylistId
+                playCurrentPlaylist()
+            }
+        } else {
+            if(_selectedPlaylistId.value == playbackManager.playingPlaylistId.value) {
+                _mediaController.play()
+            } else {
+                playbackManager.playingPlaylistId = _selectedPlaylistId
+                playCurrentPlaylist()
+            }
+        }
     }
 
     fun toggleShuffle() {

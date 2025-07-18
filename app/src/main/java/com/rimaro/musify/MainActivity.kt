@@ -11,7 +11,6 @@ import android.view.MenuItem
 import androidx.core.content.edit
 import androidx.navigation.NavOptions
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.color.DynamicColors
 import com.rimaro.musify.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 

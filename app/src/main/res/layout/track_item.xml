@@ -49,15 +49,24 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginBottom="2dp"/>
 
-            <TextView
-                android:id="@+id/track_artists"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:textSize="13sp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginTop="1dp"/>
+                android:orientation="horizontal">
+
+                <!-- TODO: add explicit icon -->
+
+                <TextView
+                    android:id="@+id/track_artists"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textSize="13sp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="1dp"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 

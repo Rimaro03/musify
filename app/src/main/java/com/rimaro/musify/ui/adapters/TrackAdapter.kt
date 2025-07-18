@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.media3.common.Player
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -29,7 +30,7 @@ class TrackAdapter(
     val onPlayButtonClicked: () -> Unit
 ) : ListAdapter<TrackObject, RecyclerView.ViewHolder>(DiffCallback()) {
     private var _playlistData: PlaylistLocal? = null
-    private var playButtonState: PlaylistViewModel.PlayButtonState? = null
+    private var playButtonState: @Player.State Int = Player.STATE_IDLE
     private var shuffleModeEnabled = false
     private var currentTrackId: String? = null
     private var followingPlaylist = false
@@ -45,7 +46,7 @@ class TrackAdapter(
         notifyItemRangeChanged(0, currentList.size)
     }
 
-    fun setPlayButtonState(newState: PlaylistViewModel.PlayButtonState) {
+    fun setPlayButtonState(newState: @Player.State Int) {
         playButtonState = newState
         notifyItemChanged(0)
     }
@@ -96,6 +97,7 @@ class TrackAdapter(
         val addFavBtn = itemView.findViewById<ImageButton>(R.id.add_fav_btn)
         val shufflePlaylistBtn = itemView.findViewById<ImageButton>(R.id.shuffle_playlist_btn)
         val playBtn = itemView.findViewById<ShapeableImageView>(R.id.play_track_bnt)
+        val loadingSpinner = itemView.findViewById<View>(R.id.loading_spinner)
 
         fun bind() {
             playlistAuthor.text = _playlistData?.owner?.displayName ?: "Owner not available"
@@ -142,10 +144,19 @@ class TrackAdapter(
                 onPlayButtonClicked()
                 it.animateClick()
             }
-            if(playButtonState == PlaylistViewModel.PlayButtonState.PLAYING)
+            if(playButtonState == Player.STATE_READY) {
                 playBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_pause)
-            else
+                loadingSpinner.visibility = View.GONE
+            }
+            else if(playButtonState == Player.STATE_BUFFERING) {
+                playBtn.setImageResource(0)
+                playBtn.setImageDrawable(null)
+                loadingSpinner.visibility = View.VISIBLE
+            }
+            else {
                 playBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_play)
+                loadingSpinner.visibility = View.GONE
+            }
         }
     }
 

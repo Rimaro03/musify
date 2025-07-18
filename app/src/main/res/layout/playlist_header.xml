@@ -87,16 +87,29 @@
             android:contentDescription="@string/add_fav"
             style="@style/icon_button_style"/>
 
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/play_track_bnt"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:scaleType="center"
-            android:src="@drawable/play_arrow_24px"
-            android:layout_gravity="center_vertical"
-            android:contentDescription="@string/add_fav"
-            android:background="?attr/colorTertiaryContainer"
-            app:shapeAppearanceOverlay="@style/play_icon_button_style"/>
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/play_track_bnt"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="center"
+                android:layout_gravity="center_vertical"
+                android:contentDescription="@string/add_fav"
+                android:background="?attr/colorTertiaryContainer"
+                app:shapeAppearanceOverlay="@style/play_icon_button_style"/>
+
+            <ProgressBar
+                android:id="@+id/loading_spinner"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:indeterminate="true"
+                android:visibility="gone" />
+
+        </FrameLayout>
 
     </LinearLayout>
 

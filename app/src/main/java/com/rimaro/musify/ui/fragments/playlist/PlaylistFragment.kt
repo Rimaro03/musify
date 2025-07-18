@@ -56,7 +56,7 @@ class PlaylistFragment : Fragment() {
         val itemTouchHelper = ItemTouchHelper(TrackSwipeCallback(::handleTrackSwipe, requireContext()))
         itemTouchHelper.attachToRecyclerView(trackRecyclerView)
 
-        val trackAdapter = TrackAdapter(
+        val trackAdapter = TrackAdapter (
             onTrackClicked = { viewModel.playTrack(it) },
             onTrackFavClicked = { viewModel.toggleFollowTrack(it) },
             onAddFavClicked = { viewModel.toggleFollowPlaylist() },
@@ -75,7 +75,7 @@ class PlaylistFragment : Fragment() {
         viewModel.playingTrackId.observe(viewLifecycleOwner) {
             trackAdapter.setCurrentTrackId(it)
         }
-        viewModel.playButtonStatus.observe(viewLifecycleOwner) {
+        viewModel.playButtonState.observe(viewLifecycleOwner) {
             trackAdapter.setPlayButtonState(it)
         }
         viewModel.shuffleEnabled.observe(viewLifecycleOwner) {

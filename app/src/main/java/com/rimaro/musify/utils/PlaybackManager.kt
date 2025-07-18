@@ -1,5 +1,6 @@
 package com.rimaro.musify.utils
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.media3.common.MediaItem
@@ -16,17 +17,25 @@ class PlaybackManager {
         _playingPlaylistId.value = newId
     }
 
-    fun getPlaybackListener( updatePlayButtonStatus: () -> Unit): Player.Listener {
-        return PlayerListener(updatePlayButtonStatus)
+    fun getPlaybackListener(
+        updateIsPlaying: (Boolean) -> Unit,
+        updatePlayerState: (Int) -> Unit): Player.Listener {
+        return PlayerListener(updateIsPlaying, updatePlayerState)
     }
 
-    inner class PlayerListener( private val updatePlayButtonStatus: () -> Unit ) : Player.Listener {
+    inner class PlayerListener(
+        private val updateIsPlaying: (Boolean) -> Unit,
+        private val updatePlayerState: (Int) -> Unit) : Player.Listener {
         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
             _playingTrackId.value = mediaItem?.mediaId
         }
 
         override fun onPlaybackStateChanged(playbackState: Int) {
-            updatePlayButtonStatus()
+            updatePlayerState(playbackState)
+        }
+
+        override fun onIsPlayingChanged(isPlaying: Boolean) {
+            updateIsPlaying(isPlaying)
         }
     }
 }
