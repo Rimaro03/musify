@@ -224,7 +224,7 @@ class TrackAdapter(
         if(holder is HeaderViewHolder) {
             holder.bind()
         } else if(holder is TrackViewHolder){
-            holder.bind(getItem(position - 1))
+            holder.bind(getItem(position))
         }
     }
 
