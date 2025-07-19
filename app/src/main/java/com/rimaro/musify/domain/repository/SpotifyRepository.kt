@@ -7,6 +7,9 @@ import com.rimaro.musify.data.remote.retrofit.SpotifyAuthService
 import com.rimaro.musify.data.remote.model.TrackObject
 import com.rimaro.musify.utils.NewPipeHelper
 import org.schabi.newpipe.extractor.stream.AudioStream
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 import javax.inject.Inject
 
 class SpotifyRepository @Inject constructor(
@@ -18,8 +21,13 @@ class SpotifyRepository @Inject constructor(
     suspend fun getTrackAudioStreamURL(track: TrackObject): String? {
         // first check the database if track audio stream is already present, otherwise fetch it
         val audioStreamUrl = audioStreamUrlDAO.getAudioStreamUrl(track.id)
+        var isExpired: Boolean? = null
         if (audioStreamUrl != null && audioStreamUrl.streamUrl != null) {
-            return audioStreamUrl.streamUrl
+            isExpired = LocalDateTime.now().isAfter(audioStreamUrl.expiresAt)
+            // entry found and not expired
+            if (isExpired == false) {
+                return audioStreamUrl.streamUrl
+            }
         }
 
         // ruffly takes 2-2.5 seconds for video url and audio stream, totalling 4s of waiting
@@ -29,13 +37,36 @@ class SpotifyRepository @Inject constructor(
             audioStream = newPipeHelper.getAudioStream(it)
         }
         val url = audioStream?.content?.toString()
-        audioStreamUrlDAO.insert(
-            AudioStreamUrl(
+        // extract expire from url
+        val expiresAt = url?.split("expire=")?.get(1)?.split("&")?.get(0)?.toLongOrNull()
+        val instant = expiresAt?.let {
+            Instant.ofEpochSecond(expiresAt)
+        }
+        val dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
+
+        // entry found but expired, update
+        if(isExpired == true) {
+            audioStreamUrlDAO.update(
                 trackId = track.id,
-                streamUrl = url
+                streamUrl = url,
+                expiresAt = dateTime.toString()
             )
-        )
+        } else {
+            // entry not found, insert
+            audioStreamUrlDAO.insert(
+                AudioStreamUrl(
+                    trackId = track.id,
+                    streamUrl = url,
+                    expiresAt = dateTime
+                )
+            )
+        }
         return url
+    }
+
+    suspend fun cleanCache() {
+        // delete entries older than 1 month
+        audioStreamUrlDAO.deleteByDateTime(LocalDateTime.now().minusMonths(1))
     }
 
     // auth requests
