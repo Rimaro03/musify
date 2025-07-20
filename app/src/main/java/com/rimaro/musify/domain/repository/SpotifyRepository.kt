@@ -1,5 +1,6 @@
 package com.rimaro.musify.domain.repository
 
+import android.util.Log
 import com.rimaro.musify.data.local.dao.AudioStreamUrlDAO
 import com.rimaro.musify.data.local.entity.AudioStreamUrl
 import com.rimaro.musify.data.remote.retrofit.SpotifyApiService
@@ -31,7 +32,9 @@ class SpotifyRepository @Inject constructor(
         }
 
         // ruffly takes 2-2.5 seconds for video url and audio stream, totalling 4s of waiting
-        val videoUrl = newPipeHelper.getVideoUrl(track.name)
+        val query = "${track.name} ${track.artists.joinToString(" "){ it.name }}"
+        Log.d("SpotifyRepository", "query: $query")
+        val videoUrl = newPipeHelper.getVideoUrl(query)
         var audioStream: AudioStream? = null
         videoUrl?.let {
             audioStream = newPipeHelper.getAudioStream(it)
