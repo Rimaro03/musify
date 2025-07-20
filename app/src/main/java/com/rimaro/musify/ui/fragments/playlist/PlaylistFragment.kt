@@ -68,6 +68,7 @@ class PlaylistFragment : Fragment() {
         // TODO: before loading playlist UI, wait for all these LiveData to fetch (short loading screen)
         viewModel.trackList.observe(viewLifecycleOwner) {
             trackAdapter.submitList(it)
+            trackRecyclerView.scrollToPosition(0)
         }
         viewModel.playlistData.observe(viewLifecycleOwner) {
             trackAdapter.setPlaylistData(it)

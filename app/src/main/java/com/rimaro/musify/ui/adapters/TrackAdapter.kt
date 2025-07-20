@@ -224,11 +224,11 @@ class TrackAdapter(
         if(holder is HeaderViewHolder) {
             holder.bind()
         } else if(holder is TrackViewHolder){
-            holder.bind(getItem(position))
+            holder.bind(getItem(position - 1))
         }
     }
 
-    override fun getItemCount(): Int = currentList.size
+    override fun getItemCount(): Int = currentList.size + 1
 
     override fun getItemViewType(position: Int): Int {
         return if (position == 0) VIEW_TYPE_HEADER else VIEW_TYPE_ITEM
