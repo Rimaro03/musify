@@ -1,17 +1,22 @@
 package com.rimaro.musify
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 import androidx.core.content.edit
 import androidx.navigation.NavOptions
-import androidx.navigation.ui.setupWithNavController
 import com.rimaro.musify.databinding.ActivityMainBinding
+import com.rimaro.musify.utils.CallListener
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -19,6 +24,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    private lateinit var callListener: CallListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,12 +37,51 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.homeFragment
+                R.id.homeFragment,
+                R.id.searchFragment,
+                R.id.libraryFragment
             )
         )
-        val navView = binding.navView
         setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
+
+        val navView = binding.navView
+        navView.setOnItemSelectedListener { item ->
+            val destinationId = when (item.itemId) {
+                R.id.homeFragment -> R.id.homeFragment
+                R.id.searchFragment -> R.id.searchFragment
+                R.id.libraryFragment -> R.id.libraryFragment
+                else -> null
+            }
+
+            destinationId?.let { dest ->
+                val currentDest = navController.currentDestination?.id
+                if(currentDest != dest) {
+                    navController.navigate(dest)
+                }
+            }
+            true
+        }
+
+        callListener = CallListener(this)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_PHONE_STATE), 101)
+        } else {
+            callListener.startListening()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String?>,
+        grantResults: IntArray,
+        deviceId: Int
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
+        if(grantResults[0] == PermissionChecker.PERMISSION_GRANTED) {
+            callListener.startListening()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -68,7 +113,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
+        return navController.navigateUp() || super.onSupportNavigateUp()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        callListener.stopListening()
     }
 }
