@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="7dp"
+    android:orientation="horizontal">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/library_playlist_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/LibraryFilterStyle">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:textStyle="bold"
+            android:text="@string/playlist"/>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/library_album_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/LibraryFilterStyle">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:textStyle="bold"
+        android:text="@string/album"/>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/library_artist_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/LibraryFilterStyle">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:textStyle="bold"
+        android:text="@string/artist"/>
+
+</androidx.cardview.widget.CardView>
+
+</LinearLayout>

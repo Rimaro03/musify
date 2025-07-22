@@ -82,7 +82,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_margin="10dp"
                 android:contentDescription="@string/add_fav"
-                style="@style/icon_button_style"/>
+                style="@style/IconButtonStyle"/>
 
         </LinearLayout>
 

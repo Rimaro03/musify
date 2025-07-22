@@ -74,7 +74,7 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/add_circle_24px"
                 android:contentDescription="@string/add_fav"
-                style="@style/icon_button_style"/>
+                style="@style/IconButtonStyle"/>
 
         </LinearLayout>
 
@@ -85,7 +85,7 @@
             android:src="@drawable/shuffle_24px"
             android:scaleType="centerCrop"
             android:contentDescription="@string/add_fav"
-            style="@style/icon_button_style"/>
+            style="@style/IconButtonStyle"/>
 
         <FrameLayout
             android:layout_width="wrap_content"
@@ -99,7 +99,7 @@
                 android:layout_gravity="center_vertical"
                 android:contentDescription="@string/add_fav"
                 android:background="?attr/colorTertiaryContainer"
-                app:shapeAppearanceOverlay="@style/play_icon_button_style"/>
+                app:shapeAppearanceOverlay="@style/PlayIconButtonStyle"/>
 
             <ProgressBar
                 android:id="@+id/loading_spinner"

@@ -35,4 +35,7 @@
     <!-- library fragment -->
     <string name="lib_play_desc">Library playlist</string>
     <string name="create_playlist">Create playlist</string>
+    <string name="playlist">Playlist</string>
+    <string name="album">Album</string>
+    <string name="artist">Artist</string>
 </resources>
