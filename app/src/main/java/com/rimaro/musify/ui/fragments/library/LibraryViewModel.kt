@@ -1,6 +1,5 @@
-package com.rimaro.musify.ui.fragments.home
+package com.rimaro.musify.ui.fragments.library
 
-import android.content.SharedPreferences
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,22 +9,16 @@ import com.rimaro.musify.data.remote.model.SimplifiedPlaylistObject
 import com.rimaro.musify.domain.repository.SpotifyRepository
 import com.rimaro.musify.utils.SpotifyTokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class LibraryViewModel @Inject constructor(
     private val spotifyRepository: SpotifyRepository,
-    private val spotifyTokenManager: SpotifyTokenManager,
-    private val prefs: SharedPreferences,
-): ViewModel() {
+    private val spotifyTokenManager: SpotifyTokenManager
+) : ViewModel() {
     private val _userPlaylists: MutableLiveData<List<SimplifiedPlaylistObject>> = MutableLiveData()
     val userPlaylists: LiveData<List<SimplifiedPlaylistObject>> = _userPlaylists
-
-    fun checkAuthSaved() : Boolean {
-        val authCode = prefs.getString("auth_code", null)
-        return ( authCode != null && authCode != "" )
-    }
 
     fun retrieveUserPlaylists() {
         viewModelScope.launch {

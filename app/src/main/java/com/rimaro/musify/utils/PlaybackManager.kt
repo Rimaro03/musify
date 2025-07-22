@@ -1,11 +1,16 @@
 package com.rimaro.musify.utils
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 
 class PlaybackManager {
+    init {
+        Log.d("PlaybackManager", "PlaybackManager initialized")
+    }
+
     private val _playingTrackId = MutableLiveData<String>()
     var playingTrackId: LiveData<String> = _playingTrackId
 
@@ -21,6 +26,8 @@ class PlaybackManager {
         updatePlayerState: (Int) -> Unit): Player.Listener {
         return PlayerListener(updateIsPlaying, updatePlayerState)
     }
+
+
 
     inner class PlayerListener(
         private val updateIsPlaying: (Boolean) -> Unit,

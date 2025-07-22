@@ -47,6 +47,10 @@
         android:id="@+id/libraryFragment"
         android:name="com.rimaro.musify.ui.fragments.library.LibraryFragment"
         android:label="Library"
-        tools:layout="@layout/fragment_library" />
+        tools:layout="@layout/fragment_library" >
+        <action
+            android:id="@+id/action_libraryFragment_to_playlistFragment"
+            app:destination="@id/playlistFragment" />
+    </fragment>
 
 </navigation>

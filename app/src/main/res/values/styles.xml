@@ -5,8 +5,13 @@
         <item name="cardCornerRadius">@dimen/card_corner_radius</item>
     </style>
 
+    <style name="LibraryPlaylistStyle" parent="CardView">
+        <item name="android:background">?attr/colorSecondaryContainer</item>
+        <item name="cardCornerRadius">@dimen/card_corner_radius</item>
+    </style>
+
     <style name="TrackStyle" parent="CardView">
-        <item name="cardBackgroundColor">@android:color/transparent</item>
+        <item name="android:background">?attr/colorSecondaryContainer</item>
         <item name="cardCornerRadius">@dimen/card_corner_radius</item>
     </style>
 

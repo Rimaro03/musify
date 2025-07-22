@@ -1,5 +1,6 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="pinned_playlist_margin">3dp</dimen>
+    <dimen name="lib_playlist_margin">3dp</dimen>
     <dimen name="card_corner_radius">5dp</dimen>
 </resources>

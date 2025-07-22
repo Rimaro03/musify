@@ -2,7 +2,6 @@ package com.rimaro.musify.utils
 
 import android.content.ComponentName
 import android.content.Context
-import android.media.session.PlaybackState
 import android.os.Build
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyCallback

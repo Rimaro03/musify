@@ -31,4 +31,8 @@
     <string name="title_home">Home</string>
     <string name="title_search">Search</string>
     <string name="title_library">Library</string>
+
+    <!-- library fragment -->
+    <string name="lib_play_desc">Library playlist</string>
+    <string name="create_playlist">Create playlist</string>
 </resources>

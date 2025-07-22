@@ -19,7 +19,6 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.rimaro.musify.data.remote.model.TrackObject
 import com.rimaro.musify.R
 import com.rimaro.musify.domain.model.PlaylistLocal
-import com.rimaro.musify.ui.fragments.playlist.PlaylistViewModel
 
 //TODO: future idea, divide the header item in playlist metadata and action buttons
 class TrackAdapter(
@@ -28,7 +27,7 @@ class TrackAdapter(
     val onAddFavClicked: () -> Unit,
     val onShuffleClicked: () -> Unit,
     val onPlayButtonClicked: () -> Unit
-) : ListAdapter<TrackObject, RecyclerView.ViewHolder>(DiffCallback()) {
+) : ListAdapter<TrackObject, RecyclerView.ViewHolder>(TrackDiffCallback()) {
     private var _playlistData: PlaylistLocal? = null
     private var playButtonState: @Player.State Int = Player.STATE_IDLE
     private var shuffleModeEnabled = false
@@ -235,7 +234,7 @@ class TrackAdapter(
     }
 }
 
-class DiffCallback: DiffUtil.ItemCallback<TrackObject>() {
+class TrackDiffCallback: DiffUtil.ItemCallback<TrackObject>() {
     override fun areItemsTheSame(oldItem: TrackObject, newItem: TrackObject): Boolean {
         return oldItem.id == newItem.id
     }

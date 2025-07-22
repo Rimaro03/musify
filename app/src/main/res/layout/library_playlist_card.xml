@@ -2,11 +2,12 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_columnWeight="1"
-    app:cardBackgroundColor="@android:color/transparent"
-    app:cardElevation="0dp"
-    android:layout_marginBottom="15dp" >
+    android:layout_marginTop="@dimen/lib_playlist_margin"
+    android:layout_marginBottom="7dp"
+    android:layout_marginStart="@dimen/lib_playlist_margin"
+    android:layout_marginEnd="@dimen/lib_playlist_margin"
+    style="@style/LibraryPlaylistStyle">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,12 +17,13 @@
         android:paddingStart="0dp"
         android:paddingEnd="2dp">
 
+        <!-- image view -->
         <ImageView
-            android:id="@+id/track_icon"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:contentDescription="@string/track_img_desc"
-            android:src="@drawable/media3_icon_artist"/>
+            android:id="@+id/library_playlist_icon"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:contentDescription="@string/lib_play_desc"
+            android:src="@drawable/media3_icon_album"/>
 
         <!-- to style track background color, style this linear layout -->
         <LinearLayout
@@ -34,7 +36,6 @@
                 android:layout_height="0dp" />
 
             <LinearLayout
-                android:id="@+id/click_to_play_zone"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -43,7 +44,7 @@
                 android:layout_gravity="center_vertical" >
 
                 <TextView
-                    android:id="@+id/track_name"
+                    android:id="@+id/playlist_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:maxLines="1"
@@ -53,38 +54,20 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginBottom="2dp"/>
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/playlist_desc"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <!-- TODO: add explicit icon -->
-
-                    <TextView
-                        android:id="@+id/track_artists"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:ellipsize="end"
-                        android:textSize="13sp"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginTop="1dp"/>
-
-                </LinearLayout>
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textSize="13sp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="1dp"/>
 
             </LinearLayout>
-
-            <ImageButton
-                android:id="@+id/follow_track_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/add_circle_24px"
-                android:layout_gravity="center_vertical"
-                android:layout_margin="10dp"
-                android:contentDescription="@string/add_fav"
-                style="@style/icon_button_style"/>
 
         </LinearLayout>
 
     </LinearLayout>
+
 </androidx.cardview.widget.CardView>

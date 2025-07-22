@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
