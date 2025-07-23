@@ -28,6 +28,9 @@ class LibraryViewModel @Inject constructor(
     private val _currentSortMode: MutableLiveData<LibrarySortMode> = MutableLiveData(LibrarySortMode.RECENT)
     val currentSortMode: LiveData<LibrarySortMode> = _currentSortMode
 
+    private val _selectedCategory: MutableLiveData<FilterCategories> = MutableLiveData(FilterCategories.PLAYLIST)
+    val selectedCategory: LiveData<FilterCategories> = _selectedCategory
+
     fun retrieveUserPlaylists() {
         viewModelScope.launch {
             val token = spotifyTokenManager.retrieveAccessToken()
@@ -58,5 +61,9 @@ class LibraryViewModel @Inject constructor(
             _currentSortMode.value = LibrarySortMode.RECENT
             _userPlaylists.value = _recentPlaylists
         }
+    }
+
+    fun changeCategory(category: FilterCategories) {
+        _selectedCategory.value = category
     }
 }
