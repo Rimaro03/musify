@@ -16,10 +16,16 @@ import com.rimaro.musify.databinding.FragmentLibraryBinding
 import com.rimaro.musify.ui.adapters.PlaylistGridViewAdapter
 import com.rimaro.musify.ui.adapters.PlaylistListViewAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import com.rimaro.musify.R
 
 enum class LibraryViewMode {
     LIST,
     GRID
+}
+
+enum class LibrarySortMode {
+    RECENT,
+    ALPHABETICAL
 }
 
 @AndroidEntryPoint
@@ -54,8 +60,13 @@ class LibraryFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-        fun changeViewType() {
+        // change view mode
+        val changeViewModeBtn = binding.libraryChangeViewBtn
+        fun changeViewMode() {
             viewModel.changeViewMode()
+        }
+        changeViewModeBtn.setOnClickListener {
+            changeViewMode()
         }
 
         trackRecyclerView.layoutManager = LinearLayoutManager(view.context)
@@ -65,9 +76,11 @@ class LibraryFragment : Fragment() {
             if(it == LibraryViewMode.LIST) {
                 adapter = PlaylistListViewAdapter(::navigateAction)
                 trackRecyclerView.layoutManager = LinearLayoutManager(view.context)
+                changeViewModeBtn.setImageResource(R.drawable.grid_view_24px)
             } else {
                 adapter = PlaylistGridViewAdapter(::navigateAction)
                 trackRecyclerView.layoutManager = GridLayoutManager(view.context, 3)
+                changeViewModeBtn.setImageResource(R.drawable.list_24px)
             }
             trackRecyclerView.adapter = adapter
             viewModel.userPlaylists.observe(viewLifecycleOwner) {
@@ -75,10 +88,24 @@ class LibraryFragment : Fragment() {
             }
         }
 
-
-        val changeViewTypeBtn = binding.libraryChangeViewBtn
-        changeViewTypeBtn.setOnClickListener {
-            changeViewType()
+        //change sort mode
+        val changeSortModeBtn = binding.libraryChangeSortBtn
+        val sortText = binding.librarySortText
+        fun changeSortMode() {
+            viewModel.changeSortMode()
+        }
+        changeSortModeBtn.setOnClickListener {
+            changeSortMode()
+        }
+        binding.libraryChangeSort.setOnClickListener {
+            changeSortMode()
+        }
+        viewModel.currentSortMode.observe(viewLifecycleOwner) {
+            if(it == LibrarySortMode.RECENT) {
+                sortText.text = getString(R.string.order_recent)
+            } else {
+                sortText.text = getString(R.string.order_alphabet)
+            }
         }
 
     }

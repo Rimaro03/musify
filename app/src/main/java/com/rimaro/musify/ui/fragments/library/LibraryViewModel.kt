@@ -19,9 +19,14 @@ class LibraryViewModel @Inject constructor(
 ) : ViewModel() {
     private val _userPlaylists: MutableLiveData<List<SimplifiedPlaylistObject>> = MutableLiveData()
     val userPlaylists: LiveData<List<SimplifiedPlaylistObject>> = _userPlaylists
+    private var _recentPlaylists: List<SimplifiedPlaylistObject> = listOf()
+    private var _alphabetPlaylists: List<SimplifiedPlaylistObject> = listOf()
 
     private val _currentViewMode: MutableLiveData<LibraryViewMode> = MutableLiveData(LibraryViewMode.LIST)
     val currentViewMode: LiveData<LibraryViewMode> = _currentViewMode
+
+    private val _currentSortMode: MutableLiveData<LibrarySortMode> = MutableLiveData(LibrarySortMode.RECENT)
+    val currentSortMode: LiveData<LibrarySortMode> = _currentSortMode
 
     fun retrieveUserPlaylists() {
         viewModelScope.launch {
@@ -32,6 +37,8 @@ class LibraryViewModel @Inject constructor(
                 Log.d("HomeViewModel", "Playlist: ${playlist.name}")
             }
             _userPlaylists.value = userPlaylists.items
+            _recentPlaylists = userPlaylists.items
+            _alphabetPlaylists = userPlaylists.items.sortedBy { it.name }
         }
     }
 
@@ -40,6 +47,16 @@ class LibraryViewModel @Inject constructor(
             _currentViewMode.value = LibraryViewMode.GRID
         } else {
             _currentViewMode.value = LibraryViewMode.LIST
+        }
+    }
+
+    fun changeSortMode() {
+        if(_currentSortMode.value == LibrarySortMode.RECENT) {
+            _currentSortMode.value = LibrarySortMode.ALPHABETICAL
+            _userPlaylists.value = _alphabetPlaylists
+        } else if(_currentSortMode.value == LibrarySortMode.ALPHABETICAL) {
+            _currentSortMode.value = LibrarySortMode.RECENT
+            _userPlaylists.value = _recentPlaylists
         }
     }
 }

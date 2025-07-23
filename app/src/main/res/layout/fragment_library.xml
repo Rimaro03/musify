@@ -20,6 +20,7 @@
                 android:paddingTop="10dp">
 
                 <LinearLayout
+                    android:id="@+id/library_change_sort"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -27,6 +28,7 @@
                     android:layout_gravity="top">
 
                     <ImageButton
+                        android:id="@+id/library_change_sort_btn"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/swap_vert_24px"
@@ -35,6 +37,7 @@
                         style="@style/IconButtonStyle"/>
 
                     <TextView
+                        android:id="@+id/library_sort_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
