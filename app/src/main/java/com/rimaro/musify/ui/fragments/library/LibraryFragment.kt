@@ -7,15 +7,20 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.ConcatAdapter
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.rimaro.musify.data.remote.model.SimplifiedPlaylistObject
 import com.rimaro.musify.databinding.FragmentLibraryBinding
-import com.rimaro.musify.ui.adapters.LibraryFilterAdapter
-import com.rimaro.musify.ui.adapters.LibraryHeaderAdapter
-import com.rimaro.musify.ui.adapters.PlaylistAdapter
-import com.rimaro.musify.ui.fragments.home.HomeFragmentDirections
+import com.rimaro.musify.ui.adapters.PlaylistGridViewAdapter
+import com.rimaro.musify.ui.adapters.PlaylistListViewAdapter
 import dagger.hilt.android.AndroidEntryPoint
+
+enum class LibraryViewMode {
+    LIST,
+    GRID
+}
 
 @AndroidEntryPoint
 class LibraryFragment : Fragment() {
@@ -43,21 +48,38 @@ class LibraryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val trackRecyclerView = binding.playlistRv
-        trackRecyclerView.layoutManager = LinearLayoutManager(view.context)
 
         fun navigateAction(playlist: SimplifiedPlaylistObject) {
             val action = LibraryFragmentDirections.actionLibraryFragmentToPlaylistFragment(playlist.id)
             findNavController().navigate(action)
         }
 
-        val playlistAdapter = PlaylistAdapter(::navigateAction)
-        val libraryFilterAdapter = LibraryFilterAdapter()
-        val libraryHeaderAdapter = LibraryHeaderAdapter()
-        val concatAdapter = ConcatAdapter(libraryFilterAdapter, libraryHeaderAdapter, playlistAdapter)
-        trackRecyclerView.adapter = concatAdapter
-
-        viewModel.userPlaylists.observe(viewLifecycleOwner) {
-            playlistAdapter.submitList(it)
+        fun changeViewType() {
+            viewModel.changeViewMode()
         }
+
+        trackRecyclerView.layoutManager = LinearLayoutManager(view.context)
+        var adapter: ListAdapter<SimplifiedPlaylistObject, RecyclerView.ViewHolder> = PlaylistListViewAdapter(::navigateAction)
+        trackRecyclerView.adapter = adapter
+        viewModel.currentViewMode.observe(viewLifecycleOwner) {
+            if(it == LibraryViewMode.LIST) {
+                adapter = PlaylistListViewAdapter(::navigateAction)
+                trackRecyclerView.layoutManager = LinearLayoutManager(view.context)
+            } else {
+                adapter = PlaylistGridViewAdapter(::navigateAction)
+                trackRecyclerView.layoutManager = GridLayoutManager(view.context, 3)
+            }
+            trackRecyclerView.adapter = adapter
+            viewModel.userPlaylists.observe(viewLifecycleOwner) {
+                adapter.submitList(it)
+            }
+        }
+
+
+        val changeViewTypeBtn = binding.libraryChangeViewBtn
+        changeViewTypeBtn.setOnClickListener {
+            changeViewType()
+        }
+
     }
 }

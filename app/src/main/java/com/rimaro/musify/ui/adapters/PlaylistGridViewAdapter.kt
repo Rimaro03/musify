@@ -6,14 +6,13 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.net.toUri
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.rimaro.musify.data.remote.model.SimplifiedPlaylistObject
 import com.rimaro.musify.R
 
-class PlaylistAdapter (
+class PlaylistGridViewAdapter (
     private val onPlaylistClick: (SimplifiedPlaylistObject) -> Unit = {}
 ): ListAdapter<SimplifiedPlaylistObject, RecyclerView.ViewHolder>(PlaylistDiffCallback()) {
     inner class PlaylistViewHolder(
@@ -41,7 +40,7 @@ class PlaylistAdapter (
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val view = inflater.inflate(R.layout.library_playlist_card, parent, false)
+        val view = inflater.inflate(R.layout.library_playlist_grid_card, parent, false)
         return PlaylistViewHolder(view)
     }
 
@@ -49,14 +48,4 @@ class PlaylistAdapter (
         (holder as PlaylistViewHolder).bind(getItem(position))
     }
 
-}
-
-class PlaylistDiffCallback: DiffUtil.ItemCallback<SimplifiedPlaylistObject>() {
-    override fun areItemsTheSame(oldItem: SimplifiedPlaylistObject, newItem: SimplifiedPlaylistObject): Boolean {
-        return oldItem.id == newItem.id
-    }
-
-    override fun areContentsTheSame(oldItem: SimplifiedPlaylistObject, newItem: SimplifiedPlaylistObject): Boolean {
-        return oldItem == newItem
-    }
 }

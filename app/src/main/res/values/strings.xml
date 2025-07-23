@@ -38,4 +38,7 @@
     <string name="playlist">Playlist</string>
     <string name="album">Album</string>
     <string name="artist">Artist</string>
+    <string name="podcast">Podcast</string>
+    <string name="order_recent">Recent</string>
+    <string name="order_alphabet">Alphabetical</string>
 </resources>

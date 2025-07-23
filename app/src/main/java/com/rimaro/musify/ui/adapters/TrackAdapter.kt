@@ -214,7 +214,7 @@ class TrackAdapter(
             val view = inflater.inflate(R.layout.playlist_header, parent, false)
             HeaderViewHolder(view)
         } else {
-            val view = inflater.inflate(R.layout.track_item, parent, false)
+            val view = inflater.inflate(R.layout.track_card, parent, false)
             TrackViewHolder(view)
         }
     }

@@ -20,6 +20,9 @@ class LibraryViewModel @Inject constructor(
     private val _userPlaylists: MutableLiveData<List<SimplifiedPlaylistObject>> = MutableLiveData()
     val userPlaylists: LiveData<List<SimplifiedPlaylistObject>> = _userPlaylists
 
+    private val _currentViewMode: MutableLiveData<LibraryViewMode> = MutableLiveData(LibraryViewMode.LIST)
+    val currentViewMode: LiveData<LibraryViewMode> = _currentViewMode
+
     fun retrieveUserPlaylists() {
         viewModelScope.launch {
             val token = spotifyTokenManager.retrieveAccessToken()
@@ -29,6 +32,14 @@ class LibraryViewModel @Inject constructor(
                 Log.d("HomeViewModel", "Playlist: ${playlist.name}")
             }
             _userPlaylists.value = userPlaylists.items
+        }
+    }
+
+    fun changeViewMode() {
+        if(_currentViewMode.value == LibraryViewMode.LIST) {
+            _currentViewMode.value = LibraryViewMode.GRID
+        } else {
+            _currentViewMode.value = LibraryViewMode.LIST
         }
     }
 }
