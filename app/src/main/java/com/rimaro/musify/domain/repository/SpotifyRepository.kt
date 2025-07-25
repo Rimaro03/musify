@@ -113,4 +113,10 @@ class SpotifyRepository @Inject constructor(
     suspend fun unfollowTrack(authorization: String, trackIds: String) =
         spotifyApiService.unfollowTrack(authorization = authorization, trackIds = trackIds)
 
+    suspend fun getUserSavedAlbums(authorization: String) =
+        spotifyApiService.getUserSavedAlbums(authorization = authorization)
+
+    suspend fun getUserFollowingArtists(authorization: String) =
+        spotifyApiService.getUserFollowingArtists(authorization = authorization)
+
 }

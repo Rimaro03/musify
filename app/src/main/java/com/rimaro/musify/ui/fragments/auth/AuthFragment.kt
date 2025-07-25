@@ -54,7 +54,7 @@ class AuthFragment : Fragment() {
             )
             builder.setScopes(arrayOf("user-read-private", "user-library-read", "user-read-email", "user-library-modify",
                 "playlist-read-private", "playlist-read-collaborative", "playlist-modify-public", "playlist-modify-private",
-                "user-follow-read", "user-top-read", "user-read-recently-played"))
+                "user-follow-read", "user-follow-modify", "user-top-read", "user-read-recently-played", "ugc-image-upload"))
             val request = builder.build()
             val intent = AuthorizationClient.createLoginActivityIntent(requireActivity(), request)
 

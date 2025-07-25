@@ -20,5 +20,11 @@ data class Album(
     val restrictions: Restrictions? = null,
     val type: String,
     val uri: String,
-    val artists: List<SimplifiedArtistObject>
+    val artists: List<SimplifiedArtistObject>,
+    val tracks: GenericListResponse<SimplifiedTrackObject> ? = null,
+    val copyrights: List<CopyrightObject>? = null,
+    val external_ids: ExternalIds? = null,
+    val genres: List<String>? = null,
+    val label: String? = null,
+    val popularity: Int? = null,
 )

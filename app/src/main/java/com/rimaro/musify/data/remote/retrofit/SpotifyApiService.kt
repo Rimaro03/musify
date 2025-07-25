@@ -1,17 +1,7 @@
 package com.rimaro.musify.data.remote.retrofit
 
-import com.rimaro.musify.data.remote.model.SimplifiedPlaylistObject
-import com.rimaro.musify.data.remote.model.GenericPlaylistsResponse
-import com.rimaro.musify.data.remote.model.PlaylistResponse
-import com.rimaro.musify.data.remote.model.SavedTrackObject
-import com.rimaro.musify.data.remote.model.UserProfileResponse
-import com.rimaro.musify.data.remote.model.UserTopTrackResponse
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.PUT
-import retrofit2.http.Path
-import retrofit2.http.Query
+import com.rimaro.musify.data.remote.model.*
+import retrofit2.http.*
 
 interface SpotifyApiService {
     @GET("me")
@@ -27,12 +17,12 @@ interface SpotifyApiService {
     @GET("me/tracks")
     suspend fun getUserSavedTracks(
         @Header("Authorization") authorization: String,
-    ): GenericPlaylistsResponse<SavedTrackObject>
+    ): GenericListResponse<SavedTrackObject>
 
     @GET("me/playlists")
     suspend fun getUserPlaylists(
         @Header("Authorization") authorization: String,
-    ): GenericPlaylistsResponse<SimplifiedPlaylistObject>
+    ): GenericListResponse<SimplifiedPlaylistObject>
 
     @GET("me/tracks/contains")
     suspend fun checkUserFollowTracks(
@@ -51,6 +41,17 @@ interface SpotifyApiService {
         @Header("Authorization") authorization: String,
         @Query("ids") trackIds: String
     )
+
+    @GET("me/albums")
+    suspend fun getUserSavedAlbums(
+        @Header("Authorization") authorization: String,
+    ): GenericListResponse<SavedAlbumObject>
+
+    @GET("me/following")
+    suspend fun getUserFollowingArtists(
+        @Header("Authorization") authorization: String,
+        @Query("type") type: String = "artist"
+    ): FollowedArtistsResponse
 
     @GET("playlists/{playlist_id}")
     suspend fun getPlaylist(

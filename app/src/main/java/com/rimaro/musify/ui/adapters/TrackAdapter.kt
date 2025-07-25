@@ -234,12 +234,3 @@ class TrackAdapter(
     }
 }
 
-class TrackDiffCallback: DiffUtil.ItemCallback<TrackObject>() {
-    override fun areItemsTheSame(oldItem: TrackObject, newItem: TrackObject): Boolean {
-        return oldItem.id == newItem.id
-    }
-
-    override fun areContentsTheSame(oldItem: TrackObject, newItem: TrackObject): Boolean {
-        return oldItem == newItem
-    }
-}

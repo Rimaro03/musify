@@ -33,12 +33,13 @@ data class UserTopTrackResponse (
 
 @SuppressLint("UnsafeOptInUsageError")
 @Serializable
-data class GenericPlaylistsResponse<T> (
+data class GenericListResponse<T> (
     val href: String,
     val limit: Int,
     val next: String? = null,
-    val offset: Int,
+    val offset: Int? = null,
     val previous: String? = null,
+    val cursors: Cursors? = null,
     val total: Int,
     val items: List<T>,
 )
@@ -57,7 +58,13 @@ data class PlaylistResponse (
     val public: Boolean,
     val snapshot_id: String,
     @Contextual
-    val tracks: GenericPlaylistsResponse<PlaylistTrackObject>,
+    val tracks: GenericListResponse<PlaylistTrackObject>,
     val type: String,
     val uri: String
+)
+
+@SuppressLint("UnsafeOptInUsageError")
+@Serializable
+data class FollowedArtistsResponse (
+    val artists: GenericListResponse<ArtistObject>,
 )

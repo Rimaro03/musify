@@ -12,8 +12,9 @@ import com.bumptech.glide.Glide
 import com.rimaro.musify.data.remote.model.SimplifiedPlaylistObject
 import com.rimaro.musify.R
 
-class PlaylistGridViewAdapter (
-    private val onPlaylistClick: (SimplifiedPlaylistObject) -> Unit = {}
+class PlaylistAdapter (
+    private val onPlaylistClick: (SimplifiedPlaylistObject) -> Unit = {},
+    private val viewId: Int
 ): ListAdapter<SimplifiedPlaylistObject, RecyclerView.ViewHolder>(PlaylistDiffCallback()) {
     inner class PlaylistViewHolder(
         itemView: View
@@ -40,7 +41,7 @@ class PlaylistGridViewAdapter (
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val view = inflater.inflate(R.layout.library_playlist_grid_card, parent, false)
+        val view = inflater.inflate(viewId, parent, false)
         return PlaylistViewHolder(view)
     }
 
