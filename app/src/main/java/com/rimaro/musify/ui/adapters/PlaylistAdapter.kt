@@ -30,11 +30,20 @@ class PlaylistAdapter (
 
             playlistName.text = playlist.name
             val desc = "${playlist.owner.display_name} • ${playlist.tracks.total} tracks"
-            playlistDesc.text = desc
+            playlistDesc.text = if(playlist.id == "-1") {
+                playlist.owner.display_name
+            } else {
+                desc
+            }
+            val icon = if(playlist.id == "-1") {
+                androidx.media3.session.R.drawable.media3_icon_heart_filled
+            } else {
+                androidx.media3.session.R.drawable.media3_icon_artist
+            }
             Glide.with(itemView.context)
-                .load(playlist.images?.first()?.url?.toUri())
-                .placeholder(androidx.media3.session.R.drawable.media3_icon_artist)
-                .error(androidx.media3.session.R.drawable.media3_icon_artist)
+                .load(playlist.images?.firstOrNull()?.url?.toUri())
+                .placeholder(icon)
+                .error(icon)
                 .into(playlistImg)
         }
     }

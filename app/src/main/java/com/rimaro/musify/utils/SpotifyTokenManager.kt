@@ -76,4 +76,5 @@ class SpotifyTokenManager @Inject constructor(
         accessToken = newSpotifyToken.access_token
         expiresAt = LocalDateTime.now().plusSeconds(newSpotifyToken.expires_in.toLong()).toString()
     }
+
 }

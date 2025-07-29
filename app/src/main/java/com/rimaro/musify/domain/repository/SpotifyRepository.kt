@@ -3,6 +3,7 @@ package com.rimaro.musify.domain.repository
 import android.util.Log
 import com.rimaro.musify.data.local.dao.AudioStreamUrlDAO
 import com.rimaro.musify.data.local.entity.AudioStreamUrl
+import com.rimaro.musify.data.remote.model.CreatePlaylistRequestBody
 import com.rimaro.musify.data.remote.retrofit.SpotifyApiService
 import com.rimaro.musify.data.remote.retrofit.SpotifyAuthService
 import com.rimaro.musify.data.remote.model.TrackObject
@@ -118,5 +119,8 @@ class SpotifyRepository @Inject constructor(
 
     suspend fun getUserFollowingArtists(authorization: String) =
         spotifyApiService.getUserFollowingArtists(authorization = authorization)
+
+    suspend fun createPlaylist(authorization: String, userId: String, request: CreatePlaylistRequestBody) =
+        spotifyApiService.createPlaylist(authorization = authorization, userId = userId, request = request)
 
 }

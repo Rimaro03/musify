@@ -7,8 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rimaro.musify.data.remote.model.Album
 import com.rimaro.musify.data.remote.model.ArtistObject
+import com.rimaro.musify.data.remote.model.ExternalUrls
+import com.rimaro.musify.data.remote.model.PlaylistResponse
 import com.rimaro.musify.data.remote.model.SavedAlbumObject
 import com.rimaro.musify.data.remote.model.SimplifiedPlaylistObject
+import com.rimaro.musify.data.remote.model.Tracks
+import com.rimaro.musify.data.remote.model.UserObject
 import com.rimaro.musify.domain.repository.SpotifyRepository
 import com.rimaro.musify.utils.SpotifyTokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,12 +54,36 @@ class LibraryViewModel @Inject constructor(
             val token = spotifyTokenManager.retrieveAccessToken()
 
             val userPlaylists = spotifyRepository.getUserPlaylists("Bearer $token")
-            for(playlist in userPlaylists.items) {
-                Log.d("HomeViewModel", "Playlist: ${playlist.name}")
-            }
-            _userPlaylists.value = userPlaylists.items
-            _recentPlaylists = userPlaylists.items
-            _alphabetPlaylists = userPlaylists.items.sortedBy { it.name }
+            val savedTracksPlaylist = SimplifiedPlaylistObject(
+                collaborative = false,
+                description = "Liked songs",
+                external_url = null,
+                href = "",
+                id = "-1",
+                images = listOf(),
+                name = "Liked songs",
+                owner = UserObject(
+                    display_name = "You",
+                    external_urls = ExternalUrls(
+                        spotify = ""
+                    ),
+                    href = "",
+                    id = "",
+                    type = "",
+                    uri = ""
+                ),
+                public = false,
+                snapshot_id = "",
+                tracks = Tracks(
+                    href = "",
+                    total = 0
+                ),
+                type = "",
+                uri = ""
+            )
+            _userPlaylists.value = listOf(savedTracksPlaylist) + userPlaylists.items
+            _recentPlaylists = listOf(savedTracksPlaylist) + userPlaylists.items
+            _alphabetPlaylists = listOf(savedTracksPlaylist) + userPlaylists.items.sortedBy { it.name }
 
             val userAlbums = spotifyRepository.getUserSavedAlbums("Bearer $token").items.map { it.album }
             _userAlbums.value = userAlbums
@@ -67,6 +95,37 @@ class LibraryViewModel @Inject constructor(
             _recentArtists = userArtists.items
             _alphabetArtists = userArtists.items.sortedBy { it.name }
         }
+    }
+
+    fun addUserPlaylist(newPlaylist: PlaylistResponse) {
+        val newSimplifiedPlaylist = SimplifiedPlaylistObject(
+            collaborative = newPlaylist.collaborative,
+            description = newPlaylist.description,
+            external_url = newPlaylist.external_url,
+            href = newPlaylist.href,
+            id = newPlaylist.id,
+            images = newPlaylist.images,
+            name = newPlaylist.name,
+            owner = newPlaylist.owner,
+            public = newPlaylist.public,
+            snapshot_id = newPlaylist.snapshot_id,
+            tracks = Tracks(
+                href = newPlaylist.tracks.href,
+                total = newPlaylist.tracks.total
+            ),
+            type = newPlaylist.type,
+            uri = newPlaylist.uri
+        )
+        val newPlaylists = _userPlaylists.value.orEmpty() + newSimplifiedPlaylist
+
+        _recentPlaylists = newPlaylists.toList()
+        _alphabetPlaylists = newPlaylists.sortedBy { it.name }
+        _userPlaylists.value = if(_currentViewMode.value == LibraryViewMode.LIST) {
+            _recentPlaylists
+        } else {
+            _alphabetPlaylists
+        }
+
     }
 
     fun changeViewMode() {

@@ -41,4 +41,12 @@
     <string name="podcast">Podcast</string>
     <string name="order_recent">Recent</string>
     <string name="order_alphabet">Alphabetical</string>
+    <string name="playlist_public">Public</string>
+    <string name="playlist_private">Private</string>
+    <string name="playlist_name">Name</string>
+    <string name="playlist_desc">Description</string>
+    <string name="playlist_visibility">Visibility</string>
+    <string name="playlist_create">Create</string>
+    <string name="playlist_cancel">Cancel</string>
+    <string name="playlist_new">New playlist</string>
 </resources>

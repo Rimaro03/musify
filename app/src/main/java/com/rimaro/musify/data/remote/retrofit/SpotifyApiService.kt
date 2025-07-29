@@ -76,4 +76,11 @@ interface SpotifyApiService {
         @Header("Authorization") authorization: String,
         @Path("playlist_id") playlistId: String
     )
+
+    @POST("users/{user_id}/playlists")
+    suspend fun createPlaylist(
+        @Header("Authorization") authorization: String,
+        @Path("user_id") userId: String,
+        @Body request: CreatePlaylistRequestBody
+    ): PlaylistResponse
 }

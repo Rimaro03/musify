@@ -1,6 +1,7 @@
 package com.rimaro.musify.ui.fragments.library
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,14 +12,16 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import com.rimaro.musify.data.remote.model.SimplifiedPlaylistObject
 import com.rimaro.musify.databinding.FragmentLibraryBinding
 import com.rimaro.musify.ui.adapters.PlaylistAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import com.rimaro.musify.R
+import com.rimaro.musify.data.remote.model.PlaylistResponse
+import com.rimaro.musify.data.remote.model.Tracks
 import com.rimaro.musify.ui.adapters.AlbumAdapter
 import com.rimaro.musify.ui.adapters.ArtistAdapter
+import com.rimaro.musify.ui.dialogs.PlaylistCreationDialog
 
 enum class LibraryViewMode {
     LIST,
@@ -62,7 +65,7 @@ class LibraryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val trackRecyclerView = binding.playlistRv
+        val libraryRecyclerView = binding.playlistRv
 
         fun navigateAction(playlist: SimplifiedPlaylistObject) {
             val action = LibraryFragmentDirections.actionLibraryFragmentToPlaylistFragment(playlist.id)
@@ -73,13 +76,13 @@ class LibraryFragment : Fragment() {
             when(category) {
                 FilterCategories.PLAYLIST -> {
                     val adapter = if(viewMode == LibraryViewMode.LIST) {
-                        trackRecyclerView.layoutManager = LinearLayoutManager(view.context)
+                        libraryRecyclerView.layoutManager = LinearLayoutManager(view.context)
                         PlaylistAdapter(::navigateAction, R.layout.library_playlist_list_card)
                     } else {
-                        trackRecyclerView.layoutManager = GridLayoutManager(view.context, 3)
+                        libraryRecyclerView.layoutManager = GridLayoutManager(view.context, 3)
                         PlaylistAdapter(::navigateAction, R.layout.library_playlist_grid_card)
                     }
-                    trackRecyclerView.adapter = adapter
+                    libraryRecyclerView.adapter = adapter
                     viewModel.userPlaylists.observe(viewLifecycleOwner) {
                         adapter.submitList(it)
                     }
@@ -87,26 +90,26 @@ class LibraryFragment : Fragment() {
                 }
                 FilterCategories.ALBUM -> {
                     val adapter = if(viewMode == LibraryViewMode.LIST) {
-                        trackRecyclerView.layoutManager = LinearLayoutManager(view.context)
+                        libraryRecyclerView.layoutManager = LinearLayoutManager(view.context)
                         AlbumAdapter({}, R.layout.library_album_list_card)
                     } else {
-                        trackRecyclerView.layoutManager = GridLayoutManager(view.context, 3)
+                        libraryRecyclerView.layoutManager = GridLayoutManager(view.context, 3)
                         AlbumAdapter({}, R.layout.library_album_grid_card)
                     }
-                    trackRecyclerView.adapter = adapter
+                    libraryRecyclerView.adapter = adapter
                     viewModel.userAlbums.observe(viewLifecycleOwner) {
                         adapter.submitList(it)
                     }
                 }
                 FilterCategories.ARTIST -> {
                     val adapter = if(viewMode == LibraryViewMode.LIST) {
-                        trackRecyclerView.layoutManager = LinearLayoutManager(view.context)
+                        libraryRecyclerView.layoutManager = LinearLayoutManager(view.context)
                         ArtistAdapter({}, R.layout.library_artist_list_card)
                     } else {
-                        trackRecyclerView.layoutManager = GridLayoutManager(view.context, 3)
+                        libraryRecyclerView.layoutManager = GridLayoutManager(view.context, 3)
                         ArtistAdapter({}, R.layout.library_artist_grid_card)
                     }
-                    trackRecyclerView.adapter = adapter
+                    libraryRecyclerView.adapter = adapter
                     viewModel.userArtists.observe(viewLifecycleOwner) {
                         adapter.submitList(it)
                     }
@@ -121,8 +124,8 @@ class LibraryFragment : Fragment() {
             viewModel.changeViewMode()
         }
 
-        trackRecyclerView.layoutManager = LinearLayoutManager(view.context)
-        trackRecyclerView.adapter = PlaylistAdapter(::navigateAction, R.layout.library_playlist_list_card)
+        libraryRecyclerView.layoutManager = LinearLayoutManager(view.context)
+        libraryRecyclerView.adapter = PlaylistAdapter(::navigateAction, R.layout.library_playlist_list_card)
         viewModel.currentViewMode.observe(viewLifecycleOwner) { newViewMode ->
             configurationChange(viewModel.selectedCategory.value!!, newViewMode)
         }
@@ -179,6 +182,17 @@ class LibraryFragment : Fragment() {
         // change category
         viewModel.selectedCategory.observe(viewLifecycleOwner) { currentCategory ->
             configurationChange(currentCategory, viewModel.currentViewMode.value!!)
+        }
+
+        // create playlist FAB
+        // TODO: newly created playlist won't immediately show in recycler view, to fix
+        val createFAB = binding.createPlaylistFab
+        createFAB.setOnClickListener {
+            PlaylistCreationDialog().show(parentFragmentManager, "PlaylistCreationDialog")
+        }
+
+        viewModel.userPlaylists.observe(viewLifecycleOwner) {
+            Log.d("LibraryFragment", "Playlist changed: $it")
         }
     }
 }
