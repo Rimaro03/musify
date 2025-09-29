@@ -10,15 +10,40 @@ import androidx.media3.session.CommandButton
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import androidx.media3.session.SessionCommand
+import androidx.media3.session.SessionResult
 import com.google.common.collect.ImmutableList
+import com.google.common.util.concurrent.Futures
+import com.google.common.util.concurrent.ListenableFuture
+import com.rimaro.musify.utils.PlaybackManager
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+private const val ACTION_ADD_FAV = "ACTION_ADD_FAV"
+private const val ACTION_REM_FAV = "ACTION_ADD_FAV"
+
+@AndroidEntryPoint
 class PlaybackService : MediaSessionService() {
     private var mediaSession: MediaSession? = null
+    private val addFavAction = SessionCommand(ACTION_ADD_FAV, Bundle.EMPTY)
+    private val remFavAction = SessionCommand(ACTION_REM_FAV, Bundle.EMPTY)
 
-    // prepare here the player (adding media items)
+    @Inject
+    lateinit var playbackManager: PlaybackManager
+
+    val addFavButton = CommandButton.Builder(CommandButton.ICON_HEART_UNFILLED)
+        .setDisplayName("Add to favorites")
+        .setSessionCommand(addFavAction)
+        .build()
+
+    val remFavButton = CommandButton.Builder(CommandButton.ICON_HEART_FILLED)
+        .setDisplayName("Remove from favorites")
+        .setSessionCommand(remFavAction)
+        .build()
+
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
+
         val player = ExoPlayer.Builder(this).build()
         player.addListener(object : Player.Listener {
             override fun onPlayerError(error: PlaybackException) {
@@ -26,14 +51,12 @@ class PlaybackService : MediaSessionService() {
                 player.removeMediaItem(0)
             }
         })
+
         mediaSession = MediaSession.Builder(this, player)
+            .setCallback(Callback())
             .setMediaButtonPreferences(
-                ImmutableList.of(
-                    CommandButton.Builder(CommandButton.ICON_SKIP_FORWARD_15)
-                        .setSessionCommand(SessionCommand("15", Bundle.EMPTY))
-                        .setSlots(CommandButton.SLOT_FORWARD)
-                        .build()
-                )
+                if(playbackManager.currentTrackFollowed.value == true) ImmutableList.of(remFavButton)
+                else ImmutableList.of(addFavButton)
             )
             .build()
     }
@@ -50,4 +73,44 @@ class PlaybackService : MediaSessionService() {
     override fun onGetSession(
         controllerInfo: MediaSession.ControllerInfo
     ): MediaSession?  = mediaSession
+
+    private inner class Callback : MediaSession.Callback {
+        @OptIn(UnstableApi::class)
+        override fun onConnect(
+            session: MediaSession,
+            controller: MediaSession.ControllerInfo
+        ): MediaSession.ConnectionResult {
+            return MediaSession.ConnectionResult.AcceptedResultBuilder(session)
+                .setAvailableSessionCommands(
+                    MediaSession.ConnectionResult.DEFAULT_SESSION_COMMANDS.buildUpon()
+                        .add(addFavAction)
+                        .add(remFavAction)
+                        .build(),
+                )
+                .build()
+        }
+
+        @OptIn(UnstableApi::class)
+        override fun onCustomCommand(
+            session: MediaSession,
+            controller: MediaSession.ControllerInfo,
+            customCommand: SessionCommand,
+            args: Bundle
+        ): ListenableFuture<SessionResult> {
+            if(customCommand.customAction == ACTION_ADD_FAV) {
+                session.setMediaButtonPreferences(ImmutableList.of(remFavButton))
+                return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
+            }
+            return super.onCustomCommand(session, controller, customCommand, args)
+        }
+
+        // TODO: future work, add playback resumption even after app closed or device rebooted
+        /*override fun onPlaybackResumption(
+            mediaSession: MediaSession,
+            controller: MediaSession.ControllerInfo
+        ): ListenableFuture<MediaSession.MediaItemsWithStartPosition> {
+            val settable = SettableFuture.create<MediaSession.MediaItemsWithStartPosition>()
+
+        }*/
+    }
 }

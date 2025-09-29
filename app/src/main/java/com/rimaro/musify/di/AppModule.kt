@@ -100,7 +100,13 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePlaybackManager(): PlaybackManager {
-        return PlaybackManager()
+    fun providePlaybackManager(
+        spotifyRepository: SpotifyRepository,
+        spotifyTokenManager: SpotifyTokenManager
+    ): PlaybackManager {
+        return PlaybackManager(
+            spotifyRepository,
+            spotifyTokenManager
+        )
     }
 }

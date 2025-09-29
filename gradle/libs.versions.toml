@@ -14,6 +14,8 @@ navigationFragmentKtx = "2.6.0"
 navigationUiKtx = "2.6.0"
 newpipeextractor = "INSERT_VERSION_HERE"
 firebaseComponents = "18.0.1"
+recyclerview = "1.4.0"
+fragment = "1.8.9"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -29,6 +31,8 @@ androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation
 material-v1120 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
 newpipeextractor = { module = "com.github.teamnewpipe:NewPipeExtractor", version.ref = "newpipeextractor" }
 firebase-components = { group = "com.google.firebase", name = "firebase-components", version.ref = "firebaseComponents" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+androidx-fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
