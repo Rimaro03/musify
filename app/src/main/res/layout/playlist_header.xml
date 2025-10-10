@@ -97,7 +97,7 @@
                 android:layout_height="50dp"
                 android:scaleType="center"
                 android:layout_gravity="center_vertical"
-                android:contentDescription="@string/add_fav"
+                android:contentDescription="@string/play_playlist"
                 android:background="?attr/colorTertiaryContainer"
                 app:shapeAppearanceOverlay="@style/PlayIconButtonStyle"/>
 

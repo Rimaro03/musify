@@ -16,6 +16,7 @@ import androidx.core.content.PermissionChecker
 import androidx.core.content.edit
 import androidx.navigation.NavOptions
 import com.rimaro.musify.databinding.ActivityMainBinding
+import com.rimaro.musify.ui.fragments.miniplayer.MiniplayerFragment
 import com.rimaro.musify.utils.CallListener
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -80,6 +81,11 @@ class MainActivity : AppCompatActivity() {
         } else {
             callListener.startListening()
         }
+
+        // loading miniplayer
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.miniPlayerContainer, MiniplayerFragment())
+            .commit()
     }
 
     override fun onRequestPermissionsResult(
