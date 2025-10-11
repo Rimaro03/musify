@@ -4,23 +4,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
-import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.media3.common.Player
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.rimaro.musify.databinding.FragmentMiniplayerBinding
 import com.rimaro.musify.utils.PlaybackManager
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import com.rimaro.musify.R
 
 @AndroidEntryPoint
 class MiniplayerFragment : Fragment() {
 
     @Inject
     lateinit var playbackManager: PlaybackManager
+
     private var _binding: FragmentMiniplayerBinding? = null
     private val binding get() = _binding!!
 
@@ -37,6 +37,11 @@ class MiniplayerFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val miniplayerLayout = view.findViewById<View>(R.id.miniplayer_layout)
+        miniplayerLayout.setOnClickListener {
+            findNavController().navigate(R.id.playerFragment)
+        }
 
         playbackManager.currentMediaItem.observe(viewLifecycleOwner) {
             if(it == null) {

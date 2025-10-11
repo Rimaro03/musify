@@ -97,11 +97,6 @@ class HomeFragment: Fragment() {
                 card.setOnClickListener { navigateAction() }
                 container.addView(card)
             }
-
-            val navigateBtn = binding.navigateBtn
-            navigateBtn.setOnClickListener {
-                findNavController().navigate(R.id.action_homeFragment_to_playerFragment)
-            }
         }
     }
 

@@ -28,9 +28,6 @@
             android:id="@+id/action_homeFragment_to_authFragment"
             app:destination="@id/authFragment"
             app:popUpTo="@id/authFragment" />
-        <action
-            android:id="@+id/action_homeFragment_to_playerFragment"
-            app:destination="@id/playerFragment" />
     </fragment>
     <fragment
         android:id="@+id/playlistFragment"
@@ -58,6 +55,16 @@
     <fragment
         android:id="@+id/playerFragment"
         android:name="com.rimaro.musify.ui.fragments.player.PlayerFragment"
-        android:label="PlayerFragment" />
+        android:label="PlayerFragment"
+        tools:layout="@layout/fragment_player"/>
+    <fragment
+        android:id="@+id/miniplayerFragment"
+        android:name="com.rimaro.musify.ui.fragments.miniplayer.MiniplayerFragment"
+        android:label="MiniplayerFragment"
+        tools:layout="@layout/fragment_miniplayer">
+        <action
+            android:id="@+id/action_miniplayerFragment_to_playerFragment"
+            app:destination="@id/playerFragment" />
+    </fragment>
 
 </navigation>
