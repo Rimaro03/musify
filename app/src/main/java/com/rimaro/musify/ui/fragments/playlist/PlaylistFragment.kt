@@ -41,7 +41,7 @@ class PlaylistFragment : Fragment() {
             requireContext(),
             ComponentName(requireContext(), PlaybackService::class.java)
         )
-        viewModel.connectToSession(token, args.playlistId)
+        viewModel.connectToSession(args.playlistId)
 
         val trackRecyclerView = binding.trackRv
         trackRecyclerView.layoutManager = LinearLayoutManager(view.context)
@@ -73,8 +73,8 @@ class PlaylistFragment : Fragment() {
         viewModel.playlistData.observe(viewLifecycleOwner) {
             trackAdapter.setPlaylistData(it)
         }
-        viewModel.playingTrackId.observe(viewLifecycleOwner) {
-            trackAdapter.setCurrentTrackId(it)
+        viewModel.playingTrackItem.observe(viewLifecycleOwner) {
+            trackAdapter.setCurrentTrackId(it?.mediaId)
         }
         viewModel.playButtonState.observe(viewLifecycleOwner) {
             trackAdapter.setPlayButtonState(it)

@@ -5,7 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.media3.common.Player
+import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.rimaro.musify.databinding.FragmentMiniplayerBinding
 import com.rimaro.musify.utils.PlaybackManager
@@ -20,6 +24,8 @@ class MiniplayerFragment : Fragment() {
     private var _binding: FragmentMiniplayerBinding? = null
     private val binding get() = _binding!!
 
+    private val viewModel: MiniplayerViewModel by viewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -32,15 +38,31 @@ class MiniplayerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        playbackManager.playingTrackId.observe(viewLifecycleOwner) {
+        playbackManager.currentMediaItem.observe(viewLifecycleOwner) {
             if(it == null) {
                 binding.miniplayerSongTitle.text = "Nothing playing"
                 binding.miniplayerSongAuthor.visibility = View.GONE
+                binding.miniplayerSongImage.visibility = View.GONE
             } else {
-                binding.miniplayerSongTitle.text = "Beautiful song"
+                binding.miniplayerSongTitle.text = it.mediaMetadata.title
                 binding.miniplayerSongAuthor.visibility = View.VISIBLE
-                binding.miniplayerSongAuthor.text = "Author"
+                binding.miniplayerSongAuthor.text = it.mediaMetadata.artist
+                Glide.with(this)
+                    .load(it.mediaMetadata.artworkUri)
+                    .placeholder(androidx.media3.session.R.drawable.media3_icon_artist)
+                    .error(androidx.media3.session.R.drawable.media3_icon_artist)
+                    .into(binding.miniplayerSongImage)
             }
         }
+
+        viewModel.playButtonState.observe(viewLifecycleOwner) {
+            if(it == Player.STATE_READY) {
+                binding.miniplayerPlayBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_pause)
+            } else {
+                binding.miniplayerPlayBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_play)
+            }
+        }
+
+        binding.miniplayerPlayBtn.setOnClickListener { viewModel.togglePlayButton() }
     }
 }

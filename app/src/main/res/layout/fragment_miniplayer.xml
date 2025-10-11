@@ -10,13 +10,13 @@
     android:background="?attr/colorSurfaceVariant">
 
     <ImageView
+        android:id="@+id/miniplayer_song_image"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:src="@drawable/mock_img"
         android:layout_margin="5dp"/>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginStart="5dp"
@@ -39,7 +39,7 @@
     </LinearLayout>
 
     <ImageButton
-        android:id="@+id/shuffle_playlist_btn"
+        android:id="@+id/miniplayer_play_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/play_arrow_24px"

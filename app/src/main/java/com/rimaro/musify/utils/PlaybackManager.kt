@@ -23,8 +23,8 @@ class PlaybackManager @Inject constructor(
         Log.d("PlaybackManager", "PlaybackManager initialized")
     }
 
-    private val _playingTrackId = MutableLiveData<String>()
-    var playingTrackId: LiveData<String> = _playingTrackId
+    private val _currentMediaItem = MutableLiveData<MediaItem?>()
+    val currentMediaItem = _currentMediaItem
 
     private val _currentTrackFollowed = MutableLiveData<Boolean>()
     var currentTrackFollowed: LiveData<Boolean> = _currentTrackFollowed
@@ -32,7 +32,6 @@ class PlaybackManager @Inject constructor(
     private val _playingPlaylistId = MutableLiveData<String>()
     var playingPlaylistId: LiveData<String> = _playingPlaylistId
 
-    @Inject
 
     fun setPlayingPlaylistID(newId: String) {
         _playingPlaylistId.value = newId
@@ -48,7 +47,7 @@ class PlaybackManager @Inject constructor(
         private val updateIsPlaying: (Boolean) -> Unit,
         private val updatePlayerState: (Int) -> Unit) : Player.Listener {
         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-            _playingTrackId.value = mediaItem?.mediaId
+            _currentMediaItem.value = mediaItem
             CoroutineScope(SupervisorJob() + Dispatchers.Main).launch {
                 val token = spotifyTokenManager.retrieveAccessToken()
                 val trackFollowed = withContext(Dispatchers.IO) {

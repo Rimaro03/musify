@@ -13,8 +13,8 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
-import androidx.media3.session.SessionToken
 import com.rimaro.musify.data.remote.model.TrackObject
+import com.rimaro.musify.di.AppModule
 import com.rimaro.musify.domain.model.PlaylistLocal
 import com.rimaro.musify.domain.model.UserLocal
 import com.rimaro.musify.domain.repository.SpotifyRepository
@@ -39,10 +39,11 @@ import javax.inject.Inject
 import kotlin.collections.first
 
 @HiltViewModel
-class PlaylistViewModel @Inject constructor(
+class   PlaylistViewModel @Inject constructor(
     private val spotifyRepository: SpotifyRepository,
     private val spotifyTokenManager: SpotifyTokenManager,
     private val playbackManager: PlaybackManager,
+    private val mediaControllerProvider: AppModule.MediaControllerProvider,
     @ApplicationContext private val context: Context
 ): ViewModel() {
 
@@ -59,7 +60,7 @@ class PlaylistViewModel @Inject constructor(
     private val _playlistData: MutableLiveData<PlaylistLocal> = MutableLiveData()
     val playlistData: LiveData<PlaylistLocal> = _playlistData
 
-    val playingTrackId: LiveData<String> = playbackManager.playingTrackId
+    val playingTrackItem: LiveData<MediaItem?> = playbackManager.currentMediaItem
 
     private val _playButtonState: MutableLiveData<@Player.State Int> = MutableLiveData()
     var playButtonState: LiveData<@Player.State Int> = _playButtonState
@@ -73,15 +74,13 @@ class PlaylistViewModel @Inject constructor(
     private val _tracksFollowed : MutableLiveData<MutableMap<String, Boolean>> = MutableLiveData()
     val tracksFollowed: LiveData<MutableMap<String, Boolean>> = _tracksFollowed
 
-    fun connectToSession(sessionToken: SessionToken, playlistId: String) {
-        val controllerFuture = MediaController.Builder(
-            context,
-            sessionToken
-        ).buildAsync()
 
-        controllerFuture.addListener (
+    fun connectToSession(playlistId: String) {
+        val future = mediaControllerProvider.controllerFuture()
+
+        future.addListener (
             {
-                val controller = controllerFuture.get()
+                val controller = future.get()
                 controller.addListener(playbackManager.getPlaybackListener(::callbackIsPlayingChange, ::callbackPlayerStateChange))
                 _mediaController = controller
                 setPlaylistId(playlistId)
@@ -256,7 +255,7 @@ class PlaylistViewModel @Inject constructor(
     }
 
     fun updatePlayButtonState(playerIsPlaying: Boolean,  playerState: @Player.State Int): @Player.State Int {
-        if(playerIsPlaying == true && (_selectedPlaylistId.value == playbackManager.playingPlaylistId.value) ) {
+        if(playerIsPlaying && (_selectedPlaylistId.value == playbackManager.playingPlaylistId.value)) {
             return Player.STATE_READY
         } else if(playerState == Player.STATE_BUFFERING) {
             return Player.STATE_BUFFERING
@@ -265,7 +264,7 @@ class PlaylistViewModel @Inject constructor(
     }
 
     fun togglePlayButton() {
-        if(_mediaController.isPlaying == true) {
+        if(_mediaController.isPlaying) {
             if(_selectedPlaylistId.value == playbackManager.playingPlaylistId.value) {
                 _mediaController.pause()
             } else {

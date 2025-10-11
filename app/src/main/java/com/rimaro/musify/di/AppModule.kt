@@ -1,8 +1,13 @@
 package com.rimaro.musify.di
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.ContextCompat
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
 import androidx.room.Room
+import com.google.common.util.concurrent.ListenableFuture
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.rimaro.musify.data.remote.retrofit.SpotifyApiService
 import com.rimaro.musify.data.remote.retrofit.SpotifyAuthService
@@ -20,9 +25,10 @@ import javax.inject.Singleton
 import com.rimaro.musify.di.Qualifiers.AuthRetrofit
 import com.rimaro.musify.di.Qualifiers.ApiRetrofit
 import com.rimaro.musify.data.local.db.AppDatabase
-import com.rimaro.musify.utils.CallListener
+import com.rimaro.musify.service.PlaybackService
 import com.rimaro.musify.utils.PlaybackManager
 import com.rimaro.musify.utils.NewPipeHelper
+import javax.inject.Inject
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -108,5 +114,32 @@ object AppModule {
             spotifyRepository,
             spotifyTokenManager
         )
+    }
+
+    @Singleton
+    class MediaControllerProvider @Inject constructor(
+        @ApplicationContext private val context: Context
+    ){
+        val token = SessionToken(
+            context,
+            ComponentName(context, PlaybackService::class.java)
+        )
+
+        val controllerFuture = MediaController.Builder(
+            context,
+            token
+        ).buildAsync()
+
+
+        fun controllerFuture(): ListenableFuture<MediaController> {
+            return controllerFuture
+        }
+
+        fun release() {
+            controllerFuture.addListener({
+                controllerFuture.get().release()
+            }, ContextCompat.getMainExecutor(context))
+
+        }
     }
 }
