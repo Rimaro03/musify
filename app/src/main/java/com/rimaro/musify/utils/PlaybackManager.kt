@@ -23,6 +23,7 @@ class PlaybackManager @Inject constructor(
         Log.d("PlaybackManager", "PlaybackManager initialized")
     }
 
+    // TODO: considering moving track/playlist utility functions (follow, unfollow) here
     private val _currentMediaItem = MutableLiveData<MediaItem?>()
     val currentMediaItem = _currentMediaItem
 
