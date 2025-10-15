@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.media3.common.Player
@@ -26,6 +27,8 @@ class MiniplayerFragment : Fragment() {
 
     private val viewModel: MiniplayerViewModel by viewModels()
 
+    private val updateProgressBarAction = Runnable { updateProgressBar() }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -45,9 +48,7 @@ class MiniplayerFragment : Fragment() {
 
         playbackManager.currentMediaItem.observe(viewLifecycleOwner) {
             if(it == null) {
-                binding.miniplayerSongTitle.text = "Nothing playing"
-                binding.miniplayerSongAuthor.visibility = View.GONE
-                binding.miniplayerSongImage.visibility = View.GONE
+                binding.miniplayerLayout.visibility = View.GONE
             } else {
                 binding.miniplayerSongTitle.text = it.mediaMetadata.title
                 binding.miniplayerSongAuthor.visibility = View.VISIBLE
@@ -57,6 +58,7 @@ class MiniplayerFragment : Fragment() {
                     .placeholder(androidx.media3.session.R.drawable.media3_icon_artist)
                     .error(androidx.media3.session.R.drawable.media3_icon_artist)
                     .into(binding.miniplayerSongImage)
+                binding.miniplayerLayout.visibility = View.VISIBLE
             }
         }
 
@@ -69,5 +71,18 @@ class MiniplayerFragment : Fragment() {
         }
 
         binding.miniplayerPlayBtn.setOnClickListener { viewModel.togglePlayButton() }
+        binding.miniplayerProgressBar.post(updateProgressBarAction)
+    }
+
+    fun updateProgressBar() {
+        val currentPosition = viewModel.playbackPosition()
+        val duration = viewModel.playbackDuration()
+
+        if(duration > 0) {
+            val progress = (currentPosition.toFloat() / duration * binding.miniplayerProgressBar.max).toInt()
+            binding.miniplayerProgressBar.progress = progress
+        }
+
+        binding.miniplayerProgressBar.postDelayed(updateProgressBarAction, 500L)
     }
 }

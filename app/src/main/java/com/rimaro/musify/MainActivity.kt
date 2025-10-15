@@ -54,6 +54,14 @@ class MainActivity : AppCompatActivity() {
                 binding.navView.visibility = View.VISIBLE
             }
         }
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            val miniplaye = findViewById<View>(R.id.miniPlayerContainer)
+            if (destination.id == R.id.playerFragment) {
+                miniplaye.visibility = View.GONE
+            } else {
+                miniplaye.visibility = View.VISIBLE
+            }
+        }
 
         val navView = binding.navView
         navView.setOnItemSelectedListener { item ->

@@ -47,6 +47,17 @@ class MiniplayerViewModel @Inject constructor(
         return Player.STATE_IDLE
     }
 
+    fun playbackPosition(): Long {
+        return if(this::_mediaController.isInitialized) _mediaController.currentPosition
+        else 0
+    }
+
+
+    fun playbackDuration(): Long {
+        return if(this::_mediaController.isInitialized) _mediaController.duration
+        else 0
+    }
+
     // ---------- PLAYLIST BUTTONS FUNCTIONS -----------------
     fun callbackIsPlayingChange(isPlaying: Boolean) {
         _playButtonState.value = updatePlayButtonState(isPlaying, _mediaController.playbackState)

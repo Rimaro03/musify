@@ -3,49 +3,68 @@
     android:id="@+id/miniplayer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:gravity="center_vertical"
-    android:layout_gravity="bottom"
     android:paddingStart="5dp"
     android:paddingEnd="5dp"
+    android:layout_margin="5dp"
+    android:visibility="gone"
     android:background="?attr/colorSurfaceVariant">
 
-    <ImageView
-        android:id="@+id/miniplayer_song_image"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_margin="5dp"/>
-
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_marginStart="5dp"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/miniplayer_song_title"
+        <ImageView
+            android:id="@+id/miniplayer_song_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="5dp"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="5dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/miniplayer_song_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="17dp"
+                android:text="Song title" />
+
+            <TextView
+                android:id="@+id/miniplayer_song_author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Song author" />
+
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/miniplayer_play_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="Nothing playing" />
-
-        <TextView
-            android:id="@+id/miniplayer_song_author"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:text="Song author" />
+            android:src="@drawable/play_arrow_24px"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/add_fav"
+            style="@style/IconButtonStyle"/>
 
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/miniplayer_play_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/play_arrow_24px"
-        android:scaleType="centerCrop"
-        android:contentDescription="@string/add_fav"
-        style="@style/IconButtonStyle"/>
+    <ProgressBar
+        android:id="@+id/miniplayer_progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:max="1000"
+        android:indeterminate="false"
+        android:layout_gravity="bottom" />
+
 
 </LinearLayout>
