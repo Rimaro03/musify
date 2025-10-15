@@ -43,6 +43,14 @@ class PlaybackManager @Inject constructor(
         return PlayerListener(updateIsPlaying, updatePlayerState)
     }
 
+    fun followCurrentTrack() {
+        _currentTrackFollowed.postValue(true)
+    }
+
+    fun unfollowCurrentTrack() {
+        _currentTrackFollowed.postValue(false)
+    }
+
     inner class PlayerListener(
         private val updateIsPlaying: (Boolean) -> Unit,
         private val updatePlayerState: (Int) -> Unit) : Player.Listener {

@@ -8,7 +8,6 @@
     android:paddingStart="5dp"
     android:paddingEnd="5dp"
     android:layout_margin="5dp"
-    android:visibility="gone"
     android:background="?attr/colorSurfaceVariant">
 
     <LinearLayout
@@ -21,7 +20,8 @@
             android:id="@+id/miniplayer_song_image"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_margin="5dp"/>
+            android:layout_margin="5dp"
+            android:contentDescription="track image" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -35,7 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
-                android:textSize="17dp"
+                android:textSize="17sp"
                 android:text="Song title" />
 
             <TextView
@@ -46,6 +46,13 @@
 
         </LinearLayout>
 
+        <ImageButton
+            android:id="@+id/miniplayer_like_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/media3_icon_heart_unfilled"
+            android:scaleType="centerCrop"
+            style="@style/IconButtonStyle" />
         <ImageButton
             android:id="@+id/miniplayer_play_btn"
             android:layout_width="wrap_content"

@@ -1,22 +1,32 @@
 package com.rimaro.musify.ui.fragments.miniplayer
 
 import android.content.Context
+import android.util.Log
 import androidx.media3.session.MediaController
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.media3.common.Player
 import com.rimaro.musify.di.AppModule
+import com.rimaro.musify.domain.repository.SpotifyRepository
 import com.rimaro.musify.utils.PlaybackManager
+import com.rimaro.musify.utils.SpotifyTokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
 class MiniplayerViewModel @Inject constructor(
     private val playbackManager: PlaybackManager,
     private val mediaControllerProvider: AppModule.MediaControllerProvider,
+    private val spotifyTokenManager: SpotifyTokenManager,
+    private val spotifyRepository: SpotifyRepository,
     @ApplicationContext private val context: Context
 ): ViewModel() {
     private lateinit var _mediaController: MediaController
@@ -71,5 +81,25 @@ class MiniplayerViewModel @Inject constructor(
     fun togglePlayButton() {
         if(_mediaController.isPlaying) _mediaController.pause()
         else _mediaController.play()
+    }
+
+    fun toggleLikeButton() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val token = spotifyTokenManager.retrieveAccessToken()
+                val track = playbackManager.currentMediaItem.value
+                if (playbackManager.currentTrackFollowed.value == false) {
+                    try{
+                        spotifyRepository.followTrack("Bearer $token", track!!.mediaId)
+                        playbackManager.followCurrentTrack()
+                    } catch(e: HttpException) {
+                        Log.d("PlaylistViewModel", "Error following track: ${track!!.mediaMetadata.title}: ${e.message}")
+                    }
+                } else {
+                    spotifyRepository.unfollowTrack("Bearer $token", track!!.mediaId)
+                    playbackManager.unfollowCurrentTrack()
+                }
+            }
+        }
     }
 }

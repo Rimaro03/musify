@@ -62,6 +62,14 @@ class MiniplayerFragment : Fragment() {
             }
         }
 
+        playbackManager.currentTrackFollowed.observe(viewLifecycleOwner) {
+            if(it) {
+                binding.miniplayerLikeBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_heart_filled)
+            } else {
+                binding.miniplayerLikeBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_heart_unfilled)
+            }
+        }
+
         viewModel.playButtonState.observe(viewLifecycleOwner) {
             if(it == Player.STATE_READY) {
                 binding.miniplayerPlayBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_pause)
@@ -72,6 +80,15 @@ class MiniplayerFragment : Fragment() {
 
         binding.miniplayerPlayBtn.setOnClickListener { viewModel.togglePlayButton() }
         binding.miniplayerProgressBar.post(updateProgressBarAction)
+
+        binding.miniplayerLikeBtn.setOnClickListener {
+            if(playbackManager.currentTrackFollowed.value == true) {
+                binding.miniplayerLikeBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_heart_unfilled)
+            } else {
+                binding.miniplayerLikeBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_heart_filled)
+            }
+            viewModel.toggleLikeButton()
+        }
     }
 
     fun updateProgressBar() {

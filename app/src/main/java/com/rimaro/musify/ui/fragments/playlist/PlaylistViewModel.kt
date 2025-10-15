@@ -327,7 +327,7 @@ class   PlaylistViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val token = spotifyTokenManager.retrieveAccessToken()
-                if (newIsTrackFollowed == true) {
+                if (newIsTrackFollowed) {
                     try{
                         spotifyRepository.followTrack("Bearer $token", track.id)
                     } catch(e: HttpException) {
