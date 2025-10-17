@@ -84,6 +84,7 @@ class MiniplayerViewModel @Inject constructor(
     }
 
     fun toggleLikeButton() {
+        if(!_mediaController.isPlaying) return
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val token = spotifyTokenManager.retrieveAccessToken()
@@ -101,5 +102,13 @@ class MiniplayerViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun skipToNext() {
+        _mediaController.seekToNextMediaItem()
+    }
+
+    fun skipToPrevious() {
+        _mediaController.seekToPreviousMediaItem()
     }
 }

@@ -1,5 +1,7 @@
 package com.rimaro.musify.ui.fragments.miniplayer
 
+import MiniplayerDragListener
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -41,8 +43,10 @@ class MiniplayerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val miniplayerLayout = view.findViewById<View>(R.id.miniplayer_layout)
-        miniplayerLayout.setOnClickListener {
+        binding.miniplayerLayout.setOnClickListener {
+            findNavController().navigate(R.id.playerFragment)
+        }
+        binding.miniplayerSwipeableArea.setOnClickListener {
             findNavController().navigate(R.id.playerFragment)
         }
 
@@ -89,6 +93,17 @@ class MiniplayerFragment : Fragment() {
             }
             viewModel.toggleLikeButton()
         }
+
+        // swiping animation
+        @SuppressLint("ClickableViewAccessibility")
+        binding.miniplayerSwipeableArea.setOnTouchListener(
+            MiniplayerDragListener(
+                onSwipeLeft = {viewModel.skipToNext()},
+                onSwipeRight = {viewModel.skipToPrevious()}
+            )
+        )
+
+
     }
 
     fun updateProgressBar() {

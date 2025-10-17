@@ -55,11 +55,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            val miniplaye = findViewById<View>(R.id.miniPlayerContainer)
+            val miniplayer = findViewById<View>(R.id.miniPlayerContainer)
             if (destination.id == R.id.playerFragment) {
-                miniplaye.visibility = View.GONE
+                miniplayer.visibility = View.GONE
             } else {
-                miniplaye.visibility = View.VISIBLE
+                miniplayer.visibility = View.VISIBLE
             }
         }
 

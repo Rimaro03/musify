@@ -53,11 +53,6 @@
             app:destination="@id/playlistFragment" />
     </fragment>
     <fragment
-        android:id="@+id/playerFragment"
-        android:name="com.rimaro.musify.ui.fragments.player.PlayerFragment"
-        android:label="PlayerFragment"
-        tools:layout="@layout/fragment_player"/>
-    <fragment
         android:id="@+id/miniplayerFragment"
         android:name="com.rimaro.musify.ui.fragments.miniplayer.MiniplayerFragment"
         android:label="MiniplayerFragment"
@@ -66,5 +61,10 @@
             android:id="@+id/action_miniplayerFragment_to_playerFragment"
             app:destination="@id/playerFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/playerFragment"
+        android:name="com.rimaro.musify.ui.fragments.player.PlayerFragment"
+        android:label="PlayerFragment"
+        tools:layout="@layout/fragment_player"/>
 
 </navigation>
