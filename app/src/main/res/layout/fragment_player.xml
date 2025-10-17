@@ -3,7 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -69,13 +70,16 @@
         android:layout_marginTop="25dp"
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
         <ImageView
             android:id="@+id/player_track_img"
             android:layout_width="360dp"
             android:layout_height="360dp"
             android:contentDescription="Track cover"
             android:layout_gravity="center"
-            android:src="@drawable/mock_img" />
+            android:src="@drawable/mock_img"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="50dp"/>
 
         <LinearLayout
             android:id="@+id/player_metadata_container"
@@ -121,7 +125,46 @@
             android:id="@+id/seekBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/player_metadata_container" />
+            app:layout_constraintTop_toBottomOf="@+id/player_metadata_container"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <ImageButton
+                android:id="@+id/player_skip_prev_btn"
+                style="@style/IconButtonStyle"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:contentDescription="@string/add_fav"
+                android:scaleType="centerCrop"
+                android:src="@drawable/add_circle_24px" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/player_play_btn"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:scaleType="center"
+                android:layout_gravity="center_vertical"
+                android:contentDescription="@string/play_playlist"
+                android:background="?attr/colorTertiaryContainer"
+                app:shapeAppearanceOverlay="@style/PlayIconButtonStyle"
+                android:src="@drawable/play_arrow_24px"/>
+
+            <ImageButton
+                android:id="@+id/player_skip_next_btn"
+                style="@style/IconButtonStyle"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:contentDescription="@string/add_fav"
+                android:scaleType="centerCrop"
+                android:src="@drawable/add_circle_24px" />
+
+        </LinearLayout>
 
         <View
             android:layout_width="match_parent"
@@ -141,6 +184,7 @@
                 android:layout_weight="1"
                 android:textAlignment="center"
                 android:text="UP NEXT" />
+
 
             <TextView
                 android:layout_width="0dp"
