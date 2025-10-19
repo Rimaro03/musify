@@ -3,9 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
-
+    android:layout_height="match_parent" >
+<!--
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
@@ -60,17 +59,16 @@
             </LinearLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
-
+-->
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="25dp"
         android:layout_marginEnd="25dp"
-        android:layout_marginTop="25dp"
-        android:orientation="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
+        android:layout_marginTop="40dp"
+        android:orientation="vertical">
+<!--
         <ImageView
             android:id="@+id/player_track_img"
             android:layout_width="360dp"
@@ -133,16 +131,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center">
+            android:gravity="center"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="10dp">
 
             <ImageButton
                 android:id="@+id/player_skip_prev_btn"
                 style="@style/IconButtonStyle"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:contentDescription="@string/add_fav"
+                android:contentDescription="Skip prev"
                 android:scaleType="centerCrop"
-                android:src="@drawable/add_circle_24px" />
+                android:src="@drawable/skip_previous_24px" />
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/player_play_btn"
@@ -150,7 +150,9 @@
                 android:layout_height="70dp"
                 android:scaleType="center"
                 android:layout_gravity="center_vertical"
-                android:contentDescription="@string/play_playlist"
+                android:contentDescription="Play"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
                 android:background="?attr/colorTertiaryContainer"
                 app:shapeAppearanceOverlay="@style/PlayIconButtonStyle"
                 android:src="@drawable/play_arrow_24px"/>
@@ -160,48 +162,21 @@
                 style="@style/IconButtonStyle"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:contentDescription="@string/add_fav"
+                android:contentDescription="Skip next"
                 android:scaleType="centerCrop"
-                android:src="@drawable/add_circle_24px" />
+                android:src="@drawable/skip_next_24px" />
 
         </LinearLayout>
-
+-->
         <View
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="20dp"
-            android:layout_gravity="center_horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textAlignment="center"
-                android:text="UP NEXT" />
-
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textAlignment="center"
-                android:text="LYRICS" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textAlignment="center"
-                android:text="RELATED" />
-
-        </LinearLayout>
-
+            android:text="ciao" />
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

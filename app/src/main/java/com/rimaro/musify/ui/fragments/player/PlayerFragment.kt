@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.rimaro.musify.databinding.FragmentPlayerBinding
@@ -25,6 +26,8 @@ class PlayerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentPlayerBinding.inflate(inflater, container, false)
+        WindowCompat.setDecorFitsSystemWindows(requireActivity().window, false)
+
         return binding.root
     }
 
@@ -33,13 +36,13 @@ class PlayerFragment : Fragment() {
 
         playbackManager.currentMediaItem.observe(viewLifecycleOwner) {
             val currentTrackData = it?.mediaMetadata
-            binding.playerTrackName.text = currentTrackData?.title
-            binding.playerTrackArtist.text = currentTrackData?.artist
-            Glide.with(this)
+            //binding.playerTrackName.text = currentTrackData?.title
+            //binding.playerTrackArtist.text = currentTrackData?.artist
+            /*Glide.with(this)
                 .load(currentTrackData?.artworkUri)
                 .placeholder(androidx.media3.session.R.drawable.media3_icon_artist)
                 .error(androidx.media3.session.R.drawable.media3_icon_artist)
-                .into(binding.playerTrackImg)
+                .into(binding.playerTrackImg)*/
         }
     }
 }
