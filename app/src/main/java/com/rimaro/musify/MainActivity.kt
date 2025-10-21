@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.core.content.edit
 import androidx.navigation.NavOptions
+import androidx.navigation.fragment.NavHostFragment
 import com.rimaro.musify.databinding.ActivityMainBinding
 import com.rimaro.musify.ui.fragments.miniplayer.MiniplayerFragment
 import com.rimaro.musify.utils.CallListener
@@ -35,7 +36,9 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
 
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
+        val navController = navHostFragment.navController
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.homeFragment,
