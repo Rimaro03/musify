@@ -36,13 +36,13 @@ class PlayerFragment : Fragment() {
 
         playbackManager.currentMediaItem.observe(viewLifecycleOwner) {
             val currentTrackData = it?.mediaMetadata
-            //binding.playerTrackName.text = currentTrackData?.title
-            //binding.playerTrackArtist.text = currentTrackData?.artist
-            /*Glide.with(this)
+            binding.playerTrackName.text = currentTrackData?.title
+            binding.playerTrackArtist.text = currentTrackData?.artist
+            Glide.with(this)
                 .load(currentTrackData?.artworkUri)
                 .placeholder(androidx.media3.session.R.drawable.media3_icon_artist)
                 .error(androidx.media3.session.R.drawable.media3_icon_artist)
-                .into(binding.playerTrackImg)*/
+                .into(binding.playerTrackImg)
         }
     }
 }

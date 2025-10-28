@@ -33,9 +33,10 @@
         android:id="@+id/miniPlayerContainer"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:layout_gravity="bottom"
+        android:layout_gravity="top"
+        app:layout_anchor="@id/nav_view"
         app:layout_anchorGravity="top"
-        android:layout_marginBottom="80dp"/>
+        android:visibility="gone"/>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/nav_view"

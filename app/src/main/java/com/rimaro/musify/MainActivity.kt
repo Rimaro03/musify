@@ -14,6 +14,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.core.content.edit
+import androidx.core.view.updatePadding
+import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import com.rimaro.musify.databinding.ActivityMainBinding
@@ -47,6 +49,8 @@ class MainActivity : AppCompatActivity() {
                 R.id.authFragment
             )
         )
+
+        // top AppBar
         setupActionBarWithNavController(navController, appBarConfiguration)
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == R.id.playerFragment) {
@@ -66,6 +70,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // bottom navigation
         val navView = binding.navView
         navView.setOnItemSelectedListener { item ->
             val destinationId = when (item.itemId) {
@@ -84,6 +89,7 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
+        // pause music during calls
         callListener = CallListener(this)
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
             != PackageManager.PERMISSION_GRANTED
@@ -97,6 +103,27 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.miniPlayerContainer, MiniplayerFragment())
             .commit()
+
+        // remove padding on player fragment shown
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            handleContentBottomPadding(destination)
+        }
+    }
+
+    private fun handleContentBottomPadding(destination: NavDestination) {
+        val navHost = binding.navHostFragmentContentMain
+        val isPlayerFragment = destination.id == R.id.playerFragment
+        if(isPlayerFragment) {
+            navHost.updatePadding(bottom = 0)
+        } else {
+            binding.navView.post {
+                val navBarHeight = binding.navView.height
+                val miniPlayerHeight = binding.miniPlayerContainer.height
+
+                // Set the bottom padding on NavHost
+                navHost.updatePadding(bottom = navBarHeight + miniPlayerHeight)
+            }
+        }
     }
 
     override fun onRequestPermissionsResult(
