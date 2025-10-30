@@ -44,15 +44,18 @@ class MiniplayerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.miniplayerLayout.setOnClickListener {
+            if(playbackManager.currentMediaItem.value == null) return@setOnClickListener
             findNavController().navigate(R.id.playerFragment)
         }
         binding.miniplayerSwipeableArea.setOnClickListener {
+            if(playbackManager.currentMediaItem.value == null) return@setOnClickListener
             findNavController().navigate(R.id.playerFragment)
         }
 
         playbackManager.currentMediaItem.observe(viewLifecycleOwner) {
             if(it == null) {
-                //.miniplayerLayout.visibility = View.GONE
+                binding.miniplayerSongTitle.text = "Nothing playing"
+                binding.miniplayerSongAuthor.visibility = View.GONE
             } else {
                 binding.miniplayerSongTitle.text = it.mediaMetadata.title
                 binding.miniplayerSongAuthor.visibility = View.VISIBLE

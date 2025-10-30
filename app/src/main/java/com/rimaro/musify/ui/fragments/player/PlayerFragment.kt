@@ -52,6 +52,8 @@ class PlayerFragment : Fragment() {
                 .placeholder(androidx.media3.session.R.drawable.media3_icon_artist)
                 .error(androidx.media3.session.R.drawable.media3_icon_artist)
                 .into(binding.playerTrackImg)
+
+            binding.playerSeekbar.max = it?.mediaMetadata?.durationMs?.toInt() ?: 1000
         }
 
         // PLAYER BUTTON
@@ -84,7 +86,6 @@ class PlayerFragment : Fragment() {
         }
 
         // SEEKBAR
-        var isUserSeeking = false
         binding.playerSeekbar.post(updateProgressBarAction)
         binding.playerSeekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(
@@ -96,13 +97,11 @@ class PlayerFragment : Fragment() {
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                isUserSeeking = true
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 seekBar?.let {
                     viewModel.seekTo(it.progress)
-                    isUserSeeking = false
                 }
             }
 
