@@ -22,8 +22,11 @@ class PlayerViewModel @Inject constructor(
 ): ViewModel() {
     private lateinit var _mediaController: MediaController
 
-    private val _playButtonState: MutableLiveData<@Player.State Int> = MutableLiveData()
-    var playButtonState: LiveData<@Player.State Int> = _playButtonState
+    private val _isPlaying = MutableLiveData<Boolean>()
+    val isPlaying: LiveData<Boolean> get() = _isPlaying
+
+    private val _playbackState = MutableLiveData<Int>()
+    val playbackState: LiveData<Int> get() = _playbackState
 
     init {
         val future = mediaControllerProvider.controllerFuture()
@@ -32,35 +35,37 @@ class PlayerViewModel @Inject constructor(
             {
                 val controller = future.get()
                 _mediaController = controller
-                controller.addListener(playbackManager.getPlaybackListener(::callbackIsPlayingChange, ::callbackPlayerStateChange))
-                updatePlayButtonState(controller.isPlaying, controller.playbackState)
+                controller.addListener(playbackManager.getPlaybackListener(::setIsPlaying, ::setPlaybackState))
+                setIsPlaying(controller.isPlaying)
+                setPlaybackState(controller.playbackState)
             },
             ContextCompat.getMainExecutor(context)
         )
     }
 
-    fun updatePlayButtonState(playerIsPlaying: Boolean,  playerState: @Player.State Int): @Player.State Int {
-        Log.d("Player", "updating play button state")
-        if(playerIsPlaying) {
-            return Player.STATE_READY
-        } else if(playerState == Player.STATE_BUFFERING) {
-            return Player.STATE_BUFFERING
-        }
-        return Player.STATE_IDLE
-    }
-
     // ---------- PLAYLIST BUTTONS FUNCTIONS -----------------
-    fun callbackIsPlayingChange(isPlaying: Boolean) {
-        _playButtonState.value = updatePlayButtonState(isPlaying, _mediaController.playbackState)
-    }
-
-    // TODO: add buffering state, add loading icon on player button
-    fun callbackPlayerStateChange(playerState: @Player.State Int) {
-        _playButtonState.value = updatePlayButtonState(_mediaController.isPlaying, playerState)
-    }
+    fun setIsPlaying(isPlaying: Boolean) { _isPlaying.value = isPlaying }
+    fun setPlaybackState(playbackState: Int) { _playbackState.value = playbackState }
 
     fun togglePlayButton() {
         if(_mediaController.isPlaying) _mediaController.pause()
         else _mediaController.play()
+    }
+
+    fun skipToNext() = _mediaController.seekToNextMediaItem()
+    fun skipToPrev() = _mediaController.seekToPreviousMediaItem()
+
+    fun playbackPosition(): Long {
+        return if(this::_mediaController.isInitialized) _mediaController.currentPosition
+        else 0
+    }
+    fun playbackDuration(): Long {
+        return if(this::_mediaController.isInitialized) _mediaController.duration
+        else 0
+    }
+
+    fun seekTo(progress: Int) {
+        Log.d("PlayerViewModel", "seekTo: $progress, playback position: ${_mediaController.currentPosition}")
+        _mediaController.seekTo(progress.toLong())
     }
 }

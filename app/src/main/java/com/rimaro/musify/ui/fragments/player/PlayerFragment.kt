@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -24,6 +25,9 @@ class PlayerFragment : Fragment() {
     lateinit var playbackManager: PlaybackManager
 
     private val viewModel: PlayerViewModel by viewModels()
+
+    private val updateProgressBarAction = Runnable { updateProgressBar() }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,15 +54,71 @@ class PlayerFragment : Fragment() {
                 .into(binding.playerTrackImg)
         }
 
-        viewModel.playButtonState.observe(viewLifecycleOwner) {
-            Log.d("Player", "Play button state changed: $it")
-            if(it == Player.STATE_READY) {
+        // PLAYER BUTTON
+        // TODO: also consider the "buffering" player state
+        viewModel.isPlaying.observe(viewLifecycleOwner) {
+            if(it) {
                 binding.playerPlayBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_pause)
             } else {
                 binding.playerPlayBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_play)
             }
         }
-
         binding.playerPlayBtn.setOnClickListener { viewModel.togglePlayButton()  }
+
+        // SKIP NEXT/PREV
+        binding.playerSkipNextBtn.setOnClickListener {
+            viewModel.skipToNext()
+        }
+        // TODO: check if prev exists
+        binding.playerSkipPrevBtn.setOnClickListener {
+            viewModel.skipToPrev()
+        }
+
+        // FOLLOW BUTTON
+        playbackManager.currentTrackFollowed.observe(viewLifecycleOwner) {
+            if(it) {
+                binding.playerAddFavBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_heart_filled)
+            } else {
+                binding.playerAddFavBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_heart_unfilled)
+            }
+        }
+
+        // SEEKBAR
+        var isUserSeeking = false
+        binding.playerSeekbar.post(updateProgressBarAction)
+        binding.playerSeekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(
+                seekBar: SeekBar?,
+                progress: Int,
+                fromUser: Boolean
+            ) {
+                // do nothing
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                isUserSeeking = true
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                seekBar?.let {
+                    viewModel.seekTo(it.progress)
+                    isUserSeeking = false
+                }
+            }
+
+        })
+
+    }
+
+    fun updateProgressBar() {
+        val currentPosition = viewModel.playbackPosition()
+        val duration = viewModel.playbackDuration()
+
+        if(duration > 0) {
+            val progress = (currentPosition.toFloat() / duration * binding.playerSeekbar.max).toInt()
+            binding.playerSeekbar.progress = progress
+        }
+
+        binding.playerSeekbar.postDelayed(updateProgressBarAction, 500L)
     }
 }

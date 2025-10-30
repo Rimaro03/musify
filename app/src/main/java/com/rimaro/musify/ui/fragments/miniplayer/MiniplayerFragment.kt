@@ -103,7 +103,6 @@ class MiniplayerFragment : Fragment() {
             )
         )
 
-
     }
 
     fun updateProgressBar() {
