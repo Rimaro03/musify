@@ -37,10 +37,6 @@ class PlaylistFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val token = SessionToken(
-            requireContext(),
-            ComponentName(requireContext(), PlaybackService::class.java)
-        )
         viewModel.connectToSession(args.playlistId)
 
         val trackRecyclerView = binding.trackRv

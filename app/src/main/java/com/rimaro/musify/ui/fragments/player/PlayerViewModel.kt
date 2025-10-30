@@ -1,6 +1,7 @@
 package com.rimaro.musify.ui.fragments.player
 
 import android.content.Context
+import android.util.Log
 import androidx.media3.session.MediaController
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
@@ -39,6 +40,7 @@ class PlayerViewModel @Inject constructor(
     }
 
     fun updatePlayButtonState(playerIsPlaying: Boolean,  playerState: @Player.State Int): @Player.State Int {
+        Log.d("Player", "updating play button state")
         if(playerIsPlaying) {
             return Player.STATE_READY
         } else if(playerState == Player.STATE_BUFFERING) {

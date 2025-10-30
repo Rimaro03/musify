@@ -50,23 +50,22 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
+        // remove padding on player fragment shown
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            handleContentBottomPadding(destination)
+        }
+
         // top AppBar
         setupActionBarWithNavController(navController, appBarConfiguration)
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == R.id.playerFragment) {
                 binding.toolbar.visibility = View.GONE
                 binding.navView.visibility = View.GONE
+                binding.miniPlayerContainer.visibility = View.GONE
             } else {
                 binding.toolbar.visibility = View.VISIBLE
                 binding.navView.visibility = View.VISIBLE
-            }
-        }
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            val miniplayer = findViewById<View>(R.id.miniPlayerContainer)
-            if (destination.id == R.id.playerFragment) {
-                miniplayer.visibility = View.GONE
-            } else {
-                miniplayer.visibility = View.VISIBLE
+                binding.miniPlayerContainer.visibility = View.VISIBLE
             }
         }
 
@@ -101,13 +100,10 @@ class MainActivity : AppCompatActivity() {
 
         // loading miniplayer
         supportFragmentManager.beginTransaction()
-            .replace(R.id.miniPlayerContainer, MiniplayerFragment())
+            .add(R.id.miniPlayerContainer, MiniplayerFragment())
             .commit()
 
-        // remove padding on player fragment shown
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            handleContentBottomPadding(destination)
-        }
+
     }
 
     private fun handleContentBottomPadding(destination: NavDestination) {

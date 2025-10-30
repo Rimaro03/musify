@@ -52,7 +52,7 @@ class MiniplayerFragment : Fragment() {
 
         playbackManager.currentMediaItem.observe(viewLifecycleOwner) {
             if(it == null) {
-                binding.miniplayerLayout.visibility = View.GONE
+                //.miniplayerLayout.visibility = View.GONE
             } else {
                 binding.miniplayerSongTitle.text = it.mediaMetadata.title
                 binding.miniplayerSongAuthor.visibility = View.VISIBLE

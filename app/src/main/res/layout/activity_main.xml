@@ -35,8 +35,7 @@
         android:layout_height="80dp"
         android:layout_gravity="top"
         app:layout_anchor="@id/nav_view"
-        app:layout_anchorGravity="top"
-        android:visibility="gone"/>
+        app:layout_anchorGravity="top" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/nav_view"

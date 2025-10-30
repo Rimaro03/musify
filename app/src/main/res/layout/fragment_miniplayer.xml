@@ -49,13 +49,17 @@
                         android:layout_height="wrap_content"
                         android:textStyle="bold"
                         android:textSize="17sp"
-                        android:text="Song title" />
+                        android:text="Song title"
+                        android:maxLines="1"
+                        android:ellipsize="end"/>
 
                     <TextView
                         android:id="@+id/miniplayer_song_author"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Song author" />
+                        android:text="Song author"
+                        android:maxLines="1"
+                        android:ellipsize="end"/>
 
                 </LinearLayout>
 

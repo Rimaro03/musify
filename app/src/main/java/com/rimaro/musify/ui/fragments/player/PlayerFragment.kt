@@ -1,11 +1,14 @@
 package com.rimaro.musify.ui.fragments.player
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.media3.common.Player
 import com.bumptech.glide.Glide
 import com.rimaro.musify.databinding.FragmentPlayerBinding
 import com.rimaro.musify.utils.PlaybackManager
@@ -19,6 +22,8 @@ class PlayerFragment : Fragment() {
 
     @Inject
     lateinit var playbackManager: PlaybackManager
+
+    private val viewModel: PlayerViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,5 +49,16 @@ class PlayerFragment : Fragment() {
                 .error(androidx.media3.session.R.drawable.media3_icon_artist)
                 .into(binding.playerTrackImg)
         }
+
+        viewModel.playButtonState.observe(viewLifecycleOwner) {
+            Log.d("Player", "Play button state changed: $it")
+            if(it == Player.STATE_READY) {
+                binding.playerPlayBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_pause)
+            } else {
+                binding.playerPlayBtn.setImageResource(androidx.media3.session.R.drawable.media3_icon_play)
+            }
+        }
+
+        binding.playerPlayBtn.setOnClickListener { viewModel.togglePlayButton()  }
     }
 }
